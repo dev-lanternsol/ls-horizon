@@ -1,3 +1,50 @@
+{% comment %}
+  Circular Arc Features Section
+  
+  A dynamic section that displays feature items positioned along a circular arc path.
+  Features are arranged in a semi-circle around a central content box that updates
+  based on user interaction (hover on desktop, click on mobile).
+  
+  Key Features:
+  - Customizable arc positioning (radius, start/end angles)
+  - Responsive layout (arc on desktop, stacked list on mobile)
+  - Interactive center content box that updates on feature selection
+  - Optional popup modals linked to keywords in center content
+  - SVG dotted arc line connecting feature points
+  - Customizable colors and spacing
+  
+  Section Settings:
+  - center_image: Main image displayed in the center
+  - center_title: Heading text above the arc
+  - center_text: Optional description text
+  - background_color: Section background color
+  - arc_color: Color of the connecting arc line and active feature borders
+  - arc_radius_percent: Size of the arc (20-48%)
+  - start_angle: Starting angle of the arc (0-360°)
+  - end_angle: Ending angle of the arc (0-720°)
+  - connector_length: Length of feature connector lines (40-120px)
+  
+  Block Settings (Feature):
+  - icon: Feature icon image
+  - title: Feature title text
+  - description: Feature description (rich text)
+  - content_heading: Heading shown in center box when active
+  - content_text: Text shown in center box when active
+  - open_by_default: Whether this feature is active by default
+  - popup_page: Optional page content for popup modal
+  - popup_keyword: Keyword in content_text that triggers popup
+  - x_offset/y_offset: Fine-tune feature position (0-100%)
+  
+  Behavior:
+  - Desktop: Hover over features to update center content
+  - Mobile: Click features to expand and show center content
+  - First feature (or one marked as default) is active on load
+  - Popup modals can be triggered by clicking keywords in center text
+  
+  @author Jose
+  @version 1.0
+{% endcomment %}
+
 <style>
   .circular-arc-section {
     background-color: {{ section.settings.background_color }};
@@ -876,6 +923,7 @@
   "presets": [
     {
       "name": "Circular Arc Features",
+      "category": "t:categories.layout",
       "blocks": [
         {
           "type": "feature"

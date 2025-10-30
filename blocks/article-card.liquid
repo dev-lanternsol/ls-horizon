@@ -1,0 +1,377 @@
+{%  liquid 
+  assign block_settings = block.settings  
+  assign ratio = 1
+
+  assign article = block_settings.article
+  assign excerpt = article.excerpt | default: article.content | strip_html | truncatewords: 30
+  assign title = article.title
+  assign url = article.url
+  assign location = article.metafields.blogs.location
+  assign icon = article.metafields.blogs.flag
+  assign date = article.metafields.custom.date | default: article.published_at | date: "%B %Y"
+
+  case block_settings.image_source
+    when 'image'
+      assign image_source = block_settings.article.image
+    when 'popup_image'
+      assign image_source = block_settings.article.metafields.custom.popup_image
+    when 'metafield_image'
+      assign image_source = block_settings.article.metafields.custom.image
+    else
+      assign image_source = block_settings.article.image
+  endcase
+
+  case block_settings.image_ratio
+    when 'landscape'
+      assign ratio = '16 / 9'
+    when 'portrait'
+      assign ratio = '4 / 5'
+    when 'adapt'
+      assign ratio = image_source.aspect_ratio
+    when 'custom'
+      assign ratio = block_settings.custom_ratio | default: '1 / 1'
+  endcase
+
+  if ratio == 0 or ratio == null
+    assign ratio = 1
+  endif
+%}
+
+{% capture class %}
+  image-block image-block--{{ block.id }} image-block--height-{{ block_settings.height }} spacing-style size-style
+{% endcapture %}
+
+{% capture style %}
+  --object-fit: {{ block_settings.image_fit | default: 'cover' }};
+  --ratio: {{ ratio }};
+  {% render 'size-style', settings: block_settings %}
+  {% render 'spacing-style', settings: block_settings %}
+{% endcapture %}
+
+{% capture image_border_style %}
+  --ratio: {{ ratio }};
+  {% render 'border-override', settings: block_settings %}
+{% endcapture %}
+
+{% liquid
+  assign media_width_desktop = '100vw'
+  assign media_width_mobile = '100vw'
+  assign sizes = 'auto, (min-width: 750px) ' | append: media_width_desktop | append: ', ' | append: media_width_mobile
+  assign widths = '240, 352, 832, 1200, 1600, 1920, 2560, 3840'
+%}
+
+{% capture image %}
+  {%- if image_source -%}
+    {{
+      image_source
+      | image_url: width: 3840
+      | image_tag:
+        width: image_source.width,
+        widths: widths,
+        height: image_source.height,
+        class: 'image-block__image border-style',
+        style: image_border_style,
+        sizes: sizes
+    }}
+  {%- else -%}
+    <div class="placeholder-image border-style size-style" style="{{ image_border_style }}">
+      {{ 'detailed-apparel-1' | placeholder_svg_tag: 'hero__image' }}
+    </div>
+  {%- endif -%}
+{% endcapture %}
+
+{% assign icon_block_class = 'icon-block__media icon-block-' | append: block.id %}
+
+{% capture icon %}
+  {% render 'icon-or-image',
+    icon: 'none',
+    image_upload: icon,
+    width: block_settings.icon_width,
+    class_name: icon_block_class
+  %}
+{% endcapture %}
+
+<div class="article-card">
+  <div class="article-card__image-wrapper">
+    {% if url == blank %}
+      <div>
+        {{ image }}
+      </div>
+    {% else %}
+      <a
+        href="{{ block_settings.link }}"
+      >
+        {{ image }}
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="article-card__text">
+    {% if excerpt != blank %}
+      <div class="article-card__excerpt text-block">
+        {% render 'text', block: block, fallback_text: excerpt %}
+      </div>
+    {% endif %}
+
+    {% if title != blank %}
+      {%  capture title %}  
+        {% if url != blank %}
+          <a href="{{ url }}" class="text-inherit text-block">
+        {% endif %}
+          <h3>{{ title }}</h3>
+        {% if url != blank %}
+          </a>
+        {% endif %}
+      {% endcapture %}
+
+      <div class="article-card__title text-block">
+        {% render 'text', block: block, fallback_text: title %}
+      </div>
+    {% endif %}
+
+    {% if icon != blank %}
+      <div class="article-card__location-icon caption text-block--align-{{ block_settings.alignment }}">
+        {% if location != blank %}
+          <span class="article-card__location">{{ location }}{{ icon }}</span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% if date != blank %}
+      <div class="article-card__date caption text-block--align-{{ block_settings.alignment }}">
+        {{ date }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% stylesheet %} 
+  .article-card__excerpt.text-block .text-block {
+    font-size: 1.0625rem;
+    line-height: 1.88;
+    padding-top: 0.75rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+  .article-card__title.text-block .text-block h3 {
+    font-size: 1.25rem;
+    line-height: 1.875;
+    padding-top: 0.5rem;
+    text-decoration: underline;
+    color: #2d7cb1;
+  }
+  span.article-card__location {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5625rem;
+    margin-top: 0.5625rem;
+    font-family: var(--font-heading--family);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 30px;
+    img {
+      height: 0.9375rem;
+      width: auto;
+    }
+  } 
+  .article-card__date.caption {
+    color: #717070;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-align: center;
+  }
+  @media only screen and (max-width: 749px) {
+    .article-card__excerpt.text-block .text-block {
+      font-size: 0.9375rem;
+      line-height: 1.67;
+    }
+    .article-card__title.text-block .text-block h3 {
+      font-size: 1.25rem;
+      line-height: 1.2;
+    }
+    span.article-card__location {
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      gap: 0.8625rem;
+    }
+    .article-card__date.caption {
+      font-size: 0.875rem;
+      padding-top: 6px;
+      font-size: 0.9375rem;
+      line-height: 1.0625rem;
+      letter-spacing: 0.08125rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Article Card",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "This block is used to display an article's title, excerpt, image and icon."
+    },
+    {
+      "type": "article",
+      "id": "article",
+      "label": "Article"
+    },
+    {
+      "type": "header",
+      "content": "Image settings"
+    },
+    {
+      "type": "select",
+      "id": "image_source",
+      "label": "Image source",
+      "options": [
+        {
+          "value": "image",
+          "label": "Article image"
+        },
+        {
+          "value": "popup_image",
+          "label": "Popup image"
+        },
+        {
+          "value": "metafield_image",
+          "label": "Metafield image"
+        }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:options.auto"
+        },
+        {
+          "value": "portrait",
+          "label": "t:options.portrait"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:options.landscape"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "adapt",
+      "label": "t:settings.aspect_ratio"
+    },
+    {
+      "type": "text",
+      "id": "custom_ratio",
+      "label": "Custom ratio (e.g. 3 / 2)",
+      "default": "1 / 1",
+      "info": "Define a custom aspect ratio using width / height format. Use a space before and after the slash.",
+      "visible_if": "{{ block.settings.image_ratio == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "cover",
+          "label": "Cover"
+        },
+        {
+          "value": "contain",
+          "label": "Contain"
+        },
+        {
+          "value": "fill",
+          "label": "Fill"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ],
+      "default": "cover",
+      "visible_if": "{{ block.settings.image_ratio == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Text settings"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "fit-content",
+          "label": "t:options.fit"
+        },
+        {
+          "value": "100%",
+          "label": "t:options.fill"
+        }
+      ],
+      "default": "100%"
+    },
+    {
+      "type": "select",
+      "id": "max_width",
+      "label": "t:settings.max_width",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "t:options.narrow"
+        },
+        {
+          "value": "normal",
+          "label": "t:options.normal"
+        },
+        {
+          "value": "none",
+          "label": "t:options.none"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "text_alignment",
+      "id": "alignment",
+      "label": "Text alignment",
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Icon settings"
+    },
+    {
+      "type": "range",
+      "id": "icon_width",
+      "label": "t:settings.width",
+      "min": 12,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Article Card",
+      "category": "Article"
+    }
+  ]
+}
+{% endschema %}

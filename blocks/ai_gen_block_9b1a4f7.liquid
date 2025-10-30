@@ -1,0 +1,301 @@
+{% capture children %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% style %}
+  .ai-multicolumn-{{ block.id }} {
+    width: 100%;
+  }
+
+  .ai-multicolumn-grid-{{ block.id }} {
+    display: grid;
+    column-gap: {{ block.settings.column_gap | divided_by: 16.0 }}rem;
+    grid-template-columns: repeat({{ block.settings.columns_desktop }}, 1fr);
+    justify-content: {{ block.settings.justify_content }};
+    align-items: {{ block.settings.align_items }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-multicolumn-grid-{{ block.id }} {
+      {% if block.settings.mobile_display == 'flex' %}
+        display: flex;
+        {% if block.settings.flex_wrap %}
+          flex-wrap: wrap;
+        {% else %}
+          flex-wrap: nowrap;
+        {% endif %}
+        column-gap: {{ block.settings.column_gap_mobile | divided_by: 16.0 }}rem;
+      {% else %}
+        grid-template-columns: repeat({{ block.settings.columns_mobile }}, 1fr);
+        column-gap: {{ block.settings.column_gap_mobile | divided_by: 16.0 }}rem;
+      {% endif %}
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    {% if block.settings.separation_type == 'dotted-line' %}
+      .ai-multicolumn-grid-{{ block.id }} {
+        position: relative;
+      }
+      .ai-multicolumn-grid-{{ block.id }}:before {
+        position: absolute;
+        content: '';
+        top: 21px;
+        left: 0;
+        width: 88%;
+        height: 2px;
+        margin: 0 auto;
+        right: 0;
+        z-index: -1;
+        border: 3px solid transparent;
+        background: linear-gradient(to right, black 33%, transparent 0%, transparent 66%, black 0%) top, linear-gradient(to bottom, black 33%, transparent 0%, transparent 66%, black 0%) right, linear-gradient(to left, black 33%, transparent 0%, transparent 66%, black 0%) bottom, linear-gradient(to top, black 33%, transparent 0%, transparent 66%, black 0%) left;
+        background-size: 20px 48px, 21px 8px;
+        background-repeat: repeat-x, repeat-y;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+<div class="ai-multicolumn-{{ block.id }}" {{ block.shopify_attributes }}>
+  <div class="ai-multicolumn-grid-{{ block.id }}
+    group-block
+    group-block--width-{{ block.settings.width }}
+    size-style"
+    style="
+      {% render 'size-style', settings: block.settings %}
+    "
+  >
+    {{ children }}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Multicolumn group",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "select",
+      "id": "separation_type",
+      "label": "Separation type",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "dotted-line",
+          "label": "Dotted line"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Columns on desktop",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Column gap",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "justify_content",
+      "label": "Justify content",
+      "options": [
+        {
+          "value": "start",
+          "label": "Start"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "end",
+          "label": "End"
+        },
+        {
+          "value": "space-between",
+          "label": "Space between"
+        },
+        {
+          "value": "space-around",
+          "label": "Space around"
+        },
+        {
+          "value": "space-evenly",
+          "label": "Space evenly"
+        }
+      ],
+      "default": "start"
+    },
+    {
+      "type": "select",
+      "id": "align_items",
+      "label": "Align items",
+      "options": [
+        {
+          "value": "start",
+          "label": "Start"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "end",
+          "label": "End"
+        },
+        {
+          "value": "stretch",
+          "label": "Stretch"
+        }
+      ],
+      "default": "stretch"
+    },
+    {
+      "type": "header",
+      "content": "t:content.size"
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "fit-content",
+          "label": "t:options.fit_content"
+        },
+        {
+          "value": "fill",
+          "label": "t:options.fill"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "custom_width",
+      "label": "t:settings.custom_width",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ block.settings.width == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "width_mobile",
+      "label": "t:settings.width_mobile",
+      "options": [
+        {
+          "value": "fit-content",
+          "label": "t:options.fit_content"
+        },
+        {
+          "value": "fill",
+          "label": "t:options.fill"
+        },
+        {
+          "value": "custom",
+          "label": "t:options.custom"
+        }
+      ],
+      "default": "fill"
+    },
+    {
+      "type": "range",
+      "id": "custom_width_mobile",
+      "label": "t:settings.custom_width",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ block.settings.width_mobile == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "select",
+      "id": "mobile_display",
+      "label": "Mobile display",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "flex",
+          "label": "Flex"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Columns on mobile",
+      "default": 1,
+      "info": "Only applies when Grid is selected",
+      "visible_if": "{{ block.settings.mobile_display == 'grid' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "flex_wrap",
+      "label": "Enable flex wrap",
+      "default": true,
+      "info": "Only applies when Flex is selected",
+      "visible_if": "{{ block.settings.mobile_display == 'flex' }}"
+    },
+    {
+      "type": "range",
+      "id": "column_gap_mobile",
+      "min": 0,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "label": "Column gap",
+      "default": 15
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@theme"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Multicolumn group",
+      "category": "t:categories.layout"
+    }
+  ]
+}
+{% endschema %}
+

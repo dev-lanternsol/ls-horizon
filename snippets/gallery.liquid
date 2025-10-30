@@ -1,0 +1,80 @@
+{%- comment -%}
+  Renders block content for all blocks that extend the image gallery block.
+
+  @param {string} children - The DOM content of the group block.
+  @param {object} settings - The settings of the group block.
+  @param {string} shopify_attributes - String with Shopify attributes for the editor.
+  @param {string} [class] - Custom classes for the image gallery block.
+  @param {string} [style] - Custom inline styles for the image gallery block.
+
+  @example
+  {% render 'gallery', children: children, settings: block.settings, shopify_attributes: block.shopify_attributes %}
+{%- endcomment -%}
+
+<div class="gallery-block-wrapper arrows-{{ settings.arrows_visibility }} arrows--{{ settings.arrows_position }} mobile-arrows--{{ settings.mobile_arrows_position }}" style="position: relative;">
+  <simple-slider
+    class="gallery-block simple-slider"
+    {% if settings.duration != 0 %}
+      data-autoplay-speed="{{ settings.duration }}"
+    {% endif %}
+    data-slides-to-show="{{ settings.slides_per_view | default: 1 }}"
+    data-slides-to-scroll="{{ settings.slides_per_scroll | default: 1 }}"
+    {% if settings.use_mobile_settings %}
+      data-mobile-slides-to-show="{{ settings.mobile_slides_per_view | default: 1 }}"
+      data-mobile-slides-to-scroll="{{ settings.mobile_slides_per_scroll | default: 1 }}"
+    {% endif %}
+    style="
+      {% render 'spacing-style', settings: settings %}
+      --gap: {{ settings.gap | divided_by: 16.0 | default: 1 }}rem;
+      {{ style }}
+    "
+    {{ shopify_attributes }}
+  >
+    <div class="slider-track{% if settings.separator_type == 'line' %} line-separator{% endif %}">
+      {{ children }}
+    </div>
+  </simple-slider>
+
+  {% if settings.show_arrows_on_desktop or settings.show_arrows_on_mobile %}
+    {%  capture arrows_visibility %} 
+      {% if settings.show_arrows_on_desktop and settings.show_arrows_on_mobile == false %}
+        hidden--mobile
+      {% elsif settings.show_arrows_on_desktop == false and settings.show_arrows_on_mobile %}
+        hidden--desktop
+      {% endif %}
+    {% endcapture %}
+
+    <button class="full-unstyled-button simple-slider__arrow simple-slider__arrow--prev js-slider-prev {{ arrows_visibility }}" aria-label="Previous slide">
+      {% if settings.custom_arrows != blank %}
+        <span class="icon-wrapper" style="width: {{ settings.arrows_width | divided_by: 16.0 }}rem; display: flex;">
+          {{ settings.custom_arrows | image_url: width: settings.arrows_width | image_tag: alt: 'Previous slide' }}
+        </span>
+      {% else %}
+        <span class="icon-wrapper">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.36782 0.281168C9.74118 -0.0937231 10.3465 -0.0937226 10.7199 0.281169L24.7179 14.3365C25.0912 14.7114 25.0912 15.3192 24.7179 15.6941L22.681 17.7394C22.3076 18.1143 21.7023 18.1143 21.3289 17.7394L7.3309 3.68403C6.95754 3.30914 6.95754 2.70132 7.33091 2.32643L9.36782 0.281168Z" fill="currentColor"/>
+            <path d="M9.39956 29.7188C9.77293 30.0937 10.3783 30.0937 10.7516 29.7188L24.72 15.6933C25.0933 15.3184 25.0933 14.7105 24.72 14.3357L22.6004 12.2074C22.2271 11.8325 21.6217 11.8325 21.2484 12.2074L7.28002 26.233C6.90666 26.6079 6.90666 27.2157 7.28002 27.5906L9.39956 29.7188Z" fill="currentColor"/>
+          </svg>
+        </span>
+      {% endif %}
+    </button>
+    <button class="full-unstyled-button simple-slider__arrow simple-slider__arrow--next js-slider-next {{ arrows_visibility }}" aria-label="Next slide">
+      {% if settings.custom_arrows != blank %}
+        <span class="icon-wrapper" style="width: {{ settings.arrows_width | divided_by: 16.0 }}rem; display: flex;">
+          {{ settings.custom_arrows | image_url: width: settings.arrows_width | image_tag: alt: 'Next slide' }}
+        </span>
+      {% else %}
+        <span class="icon-wrapper">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.36782 0.281168C9.74118 -0.0937231 10.3465 -0.0937226 10.7199 0.281169L24.7179 14.3365C25.0912 14.7114 25.0912 15.3192 24.7179 15.6941L22.681 17.7394C22.3076 18.1143 21.7023 18.1143 21.3289 17.7394L7.3309 3.68403C6.95754 3.30914 6.95754 2.70132 7.33091 2.32643L9.36782 0.281168Z" fill="currentColor"/>
+            <path d="M9.39956 29.7188C9.77293 30.0937 10.3783 30.0937 10.7516 29.7188L24.72 15.6933C25.0933 15.3184 25.0933 14.7105 24.72 14.3357L22.6004 12.2074C22.2271 11.8325 21.6217 11.8325 21.2484 12.2074L7.28002 26.233C6.90666 26.6079 6.90666 27.2157 7.28002 27.5906L9.39956 29.7188Z" fill="currentColor"/>
+          </svg>
+        </span>
+      {% endif %}
+    </button>
+  {% endif %}
+
+  {% if settings.show_dots %}
+    <div class="simple-slider__dots js-slider-dots"></div>
+  {% endif %}
+</div>

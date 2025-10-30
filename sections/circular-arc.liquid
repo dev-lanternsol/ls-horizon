@@ -1,0 +1,896 @@
+<style>
+  .circular-arc-section {
+    background-color: {{ section.settings.background_color }};
+    padding: 80px 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .arc-container {
+    position: relative;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2.arc-title {
+    text-align: center;
+    font-size: 1.875rem;
+    line-height: 1.3;
+  }
+
+  .arc-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 85%;
+    margin-bottom: -16rem;
+    margin-top: -9rem;
+  }
+
+  .arc-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  .center-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 0;
+    width: 100%;
+    max-width: 31.25rem;
+  }
+
+  .center-image {
+    width: 24rem;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    right: 0;
+    padding-top: 20rem;
+  }
+
+  .center-box {
+    background: #ffffff80;
+    border-radius: 3.125rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    margin-top: -70px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid #919191;
+  }
+
+  .content-heading h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0.625rem 0;
+    color: #000;
+  }
+
+  .content-text p {
+    text-align: start;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: #333;
+    margin-bottom: 12px;
+  }
+
+  .content-text a {
+    color: {{ section.settings.arc_color }};
+    text-decoration: underline;
+  }
+
+  .feature-item {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    transform: translate(-50%, -50%);
+  }
+
+  .feature-item.positioned {
+    opacity: 1;
+  }
+
+  .feature-inner {
+    position: relative;
+    width: 100%;
+  }
+
+  .feature-icon-wrapper {
+    width: 4.6875rem;
+    height: 4.6875rem;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.12);
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .feature-item.active .feature-icon-wrapper {
+    border: 3px solid {{ section.settings.arc_color }};
+  }
+
+  .feature-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .feature-content {
+    position: absolute;
+    top: 0;
+    transform: translateY(-15%);
+    z-index: 2;
+    width: 23rem;
+  }
+
+  .feature-content.align-left {
+    text-align: left;
+    padding-left: 2rem;
+    left: 100%;
+  }
+
+  .feature-content.align-center {
+    text-align: center;
+  }
+
+  .feature-content.align-right {
+    text-align: right;
+    padding-right: 2rem;
+    right: 100%;
+  }
+
+  .feature-title {
+    font-size: 1.0625rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+    color: #000;
+    line-height: 1.23;
+    font-family: var(--font-paragraph--family);
+  }
+
+  .feature-description {
+    font-size: 0.875rem;
+    line-height: 1.78;
+    color: #555;
+  }
+
+  .main-arc-path path {
+    fill: none;
+    stroke: {{ section.settings.arc_color }};
+    stroke-width: 3px;
+    stroke-dasharray: 3, 6; /* 2px dot, 6px gap */
+    stroke-linecap: round; /* Makes the dashes into dots */
+  }
+
+  .content-text a.popup-opener {
+    cursor: pointer;
+  }
+
+  .popup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 10;
+    inset: 0; /* shorthand for top, right, bottom, left */
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+  .popup-content {
+    background: #fff;
+    padding: 3rem 1.5rem;
+    border-radius: 12px;
+    width: var(--normal-content-width);
+    max-height: var(--modal-max-height);
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow-y: auto;
+    font-size: 1.125rem;
+  }
+
+  .close {
+    position: absolute;
+    cursor: pointer;
+    font-size: 2rem;
+    line-height: 2rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2072aa;
+    color: #fff;
+    border-radius: 50%;
+    top: 10px;
+    right: 10px;
+  }
+
+  @media (max-width: 749px) {
+    .arc-wrapper {
+      min-height: unset;
+      padding-bottom: 0;
+      margin: 0;
+    }
+
+    .arc-container {
+      padding: 0;
+    }
+
+    .arc-content > img {
+      display: none;
+    }
+
+    .feature-icon-wrapper {
+      width: 2.8125rem;
+      height: 2.8125rem;
+    }
+
+    .center-content {
+      display: none;
+    }
+    .arc-content,
+    .feature-item,
+    .feature-content {
+      position: relative;
+    }
+    .feature-center-data {
+      display: none;
+      margin-bottom: 27px;
+    }
+    .feature-item {
+      .feature-icon-wrapper{
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .feature-content,
+      .feature-center-data {
+        padding-left: 3.75rem;
+      }
+    } 
+    .feature-item.positioned.active {
+      .feature-center-data {
+        display: block;
+      }
+    }
+    .feature-content {
+      transform: translateY(0);
+    }
+    .feature-title {
+      font-size: 0.9375rem;
+    }
+
+    .feature-description p {
+      font-size: 0.9375rem;
+    }
+    
+    .content-text {
+      background: #ffffff80;
+      border: 1px solid #919191;
+      padding: 18px;
+      border-radius: 5px;
+      p {
+        font-size: 0.9375rem;
+        line-height: 1.6;
+      }
+    }
+    .circular-arc-section {
+      padding: 60px 15px;
+    }
+  }
+</style>
+
+<div class="circular-arc-section">
+  <div class="arc-container">
+    <h2 class="arc-title">{{ section.settings.center_title }}</h2>
+    {% if section.settings.center_text != blank %}
+      <div class="arc-description-text">
+        {{ section.settings.center_text }}
+      </div>
+    {% endif %}
+    <div class="arc-wrapper" id="arc-wrapper-{{ section.id }}">
+      <div class="arc-content" id="arc-content-{{ section.id }}">
+        <svg class="main-arc-path" id="main-arc-{{ section.id }}" 
+           width="100%" height="100%" 
+           style="position: absolute; top: 0; left: 0; z-index: 0;">
+        </svg>
+        <!-- Center Content -->
+        {% if section.settings.center_image %}
+          <img src="{{ section.settings.center_image | img_url: '600x' }}" 
+                alt="{{ section.settings.center_title }}"
+                class="center-image"
+                loading="lazy">
+        {% endif %}
+        <div class="center-content">
+          <div class="center-box">
+            <!-- Section content should be pulled from each block and should change based on which block is active, block "active" is done with the hover feature on desktop and with click on mobile -->
+            <div class="center-box-content" id="center-box-content-{{ section.id }}">
+              {% if section.blocks.first %}
+                <div class="content-heading">{{ section.blocks.first.settings.content_heading }}</div>
+                <div class="content-text">{{ section.blocks.first.settings.content_text }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Items -->
+        {% for block in section.blocks %}
+          <div class="feature-item" 
+            data-index="{{ forloop.index0 }}"
+            {% if block.settings.open_by_default %}data-default{% endif %}
+            {% if block.settings.x_offset != '50' or block.settings.y_offset != '50' %}
+              style="transform: translate(-{{ block.settings.x_offset }}%, -{{ block.settings.y_offset }}%);"
+            {% endif %}
+            {{ block.shopify_attributes }}
+          >
+            
+            <div class="feature-inner">
+              <div class="feature-icon-wrapper">
+                {% if block.settings.icon %}
+                  <img src="{{ block.settings.icon | img_url: '80x' }}" 
+                       alt="{{ block.settings.title }}"
+                       class="feature-icon"
+                       loading="lazy">
+                {% else %}
+                  <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                {% endif %}
+              </div>
+              
+              <div class="feature-content">
+                <h3 class="feature-title">{{ block.settings.title }}</h3>
+                <div class="rte feature-description">{{ block.settings.description |  newline_to_br }}</div>
+              </div>
+
+              <div class="feature-center-data hidden--desktop">
+                <div class="content-heading hidden--mobile">{{ block.settings.content_heading }}</div>
+                {% if block.settings.popup_page != blank and block.settings.popup_keyword != blank %}
+                  {% capture popup_opener %} 
+                    <a data-id="popup--{{ block.id }}" class="popup-opener link popup-link__button text-left spacing-style">{{ block.settings.popup_keyword }}</a>
+                  {% endcapture %}
+                  <div class="content-text">{{ block.settings.content_text | replace: block.settings.popup_keyword, popup_opener }}</div>
+                {%  else %}
+                  <div class="content-text">{{ block.settings.content_text }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% if block.settings.popup_page != blank and block.settings.popup_keyword != blank %}
+            <div id="popup--{{ block.id }}" class="popup" style="--normal-content-width: 60rem;--modal-max-height: 80vh;">
+              <div class="popup-content">
+                <span data-id="popup--{{ block.id }}" class="close">&times;</span>
+                {{ block.settings.popup_page.content }}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const sectionId = '{{ section.id }}';
+  const radiusPercent = {{ section.settings.arc_radius_percent |  minus: 3 }};
+  const connectorLength = {{ section.settings.connector_length }};
+  const startAngle = {{ section.settings.start_angle }};
+  const endAngle = {{ section.settings.end_angle }};
+  
+  // --- Popup initialization ---
+  function initializePopups() {
+    const popupOpeners = document.querySelectorAll('.popup-opener');
+    
+    popupOpeners.forEach(function(opener) {
+      // Remove existing listeners by cloning
+      const newOpener = opener.cloneNode(true);
+      opener.parentNode.replaceChild(newOpener, opener);
+    });
+    
+    // Re-query after cloning
+    const freshOpeners = document.querySelectorAll('.popup-opener');
+    freshOpeners.forEach(function(opener) {
+      opener.addEventListener('click', function(e) {
+        e.preventDefault();
+        const popupId = this.getAttribute('data-id');
+        const popup = document.getElementById(popupId);
+        if (popup) {
+          popup.style.display = 'block';
+        }
+      });
+    });
+    
+    // Close popup when clicking the X button
+    const closeButtons = document.querySelectorAll('.popup .close');
+    closeButtons.forEach(function(closeBtn) {
+      const newCloseBtn = closeBtn.cloneNode(true);
+      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+    });
+    
+    const freshCloseButtons = document.querySelectorAll('.popup .close');
+    freshCloseButtons.forEach(function(closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        const popupId = this.getAttribute('data-id');
+        const popup = document.getElementById(popupId);
+        if (popup) {
+          popup.style.display = 'none';
+        }
+      });
+    });
+  }
+  
+  // Close popup when clicking outside the content (only bind once)
+  let windowClickBound = false;
+  function bindWindowClick() {
+    if (!windowClickBound) {
+      window.addEventListener('click', function(e) {
+        if (e.target.classList.contains('popup')) {
+          e.target.style.display = 'none';
+        }
+      });
+      windowClickBound = true;
+    }
+  }
+  
+  // --- Helper function to convert polar coords to cartesian ---
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const angleRad = (angleDeg) * (Math.PI / 180.0);
+    return {
+      x: cx + (r * Math.cos(angleRad)),
+      y: cy + (r * Math.sin(angleRad))
+    };
+  }
+
+  // --- Helper function to generate SVG arc path data ---
+  function describeArc(x, y, radius, startAngle, endAngle) {
+    const start = polarToCartesian(x, y, radius, startAngle);
+    const end = polarToCartesian(x, y, radius, endAngle);
+    
+    const arcSpan = endAngle - startAngle;
+    const largeArcFlag = (arcSpan % 360) <= 180 ? "0" : "1";
+    const sweepFlag = "1"; 
+
+    const d = [
+      "M", start.x, start.y,
+      "A", radius, radius, 0, largeArcFlag, sweepFlag,
+      end.x, end.y
+    ].join(" ");
+    
+    return d;
+  }
+  
+  // --- Update center box content ---
+  function updateCenterBox(featureItem) {
+    const centerBoxContent = document.getElementById('center-box-content-' + sectionId);
+    if (!centerBoxContent) return;
+
+    const targetHeading = centerBoxContent.querySelector('.content-heading');
+    const targetText = centerBoxContent.querySelector('.content-text');
+    
+    const featureCenterData = featureItem.querySelector('.feature-center-data');
+    if (!featureCenterData) return;
+    
+    const dataHeading = featureCenterData.querySelector('.content-heading');
+    const dataText = featureCenterData.querySelector('.content-text');
+
+    targetHeading.innerHTML = '';
+    targetText.innerHTML = '';
+    
+    if (dataHeading) {
+      targetHeading.innerHTML += dataHeading.innerHTML;
+    }
+    if (dataText) {
+      targetText.innerHTML += dataText.innerHTML;
+    }
+    
+    // Re-initialize popups after content update
+    initializePopups();
+  }
+  
+  // --- Setup interaction handlers ---
+  function setupInteractions() {
+    const content = document.getElementById('arc-content-' + sectionId);
+    if (!content) return;
+    
+    const features = content.querySelectorAll('.feature-item');
+    const isMobile = window.innerWidth < 1100;
+    
+    features.forEach((feature) => {
+      // Remove existing listeners
+      const newFeature = feature.cloneNode(true);
+      feature.parentNode.replaceChild(newFeature, feature);
+    });
+    
+    // Re-query after cloning
+    const freshFeatures = content.querySelectorAll('.feature-item');
+    
+    // Set default active item
+    let hasDefault = false;
+    
+    if (!isMobile) {
+      // Desktop: use data-default if available
+      freshFeatures.forEach((feature) => {
+        if (feature.hasAttribute('data-default')) {
+          feature.classList.add('active');
+          updateCenterBox(feature);
+          hasDefault = true;
+        }
+      });
+    }
+    
+    // If no default (or on mobile), activate the first item
+    if (!hasDefault && freshFeatures.length > 0) {
+      freshFeatures[0].classList.add('active');
+      updateCenterBox(freshFeatures[0]);
+    }
+    
+    freshFeatures.forEach((feature) => {
+      if (isMobile) {
+        // Mobile: click to activate
+        feature.addEventListener('click', function(e) {
+          e.preventDefault();
+          // Don't reactivate if already active
+          if (feature.classList.contains('active')) return;
+          
+          freshFeatures.forEach(f => f.classList.remove('active'));
+          feature.classList.add('active');
+          updateCenterBox(feature);
+        });
+      } else {
+        // Desktop: hover to activate
+        feature.addEventListener('mouseenter', function() {
+          // Don't reactivate if already active
+          if (feature.classList.contains('active')) return;
+          
+          freshFeatures.forEach(f => f.classList.remove('active'));
+          feature.classList.add('active');
+          updateCenterBox(feature);
+        });
+      }
+    });
+  }
+  
+  function positionFeatures() {
+    const wrapper = document.getElementById('arc-wrapper-' + sectionId);
+    const content = document.getElementById('arc-content-' + sectionId);
+    
+    if (!wrapper || !content) return;
+    
+    const features = content.querySelectorAll('.feature-item');
+    if (features.length === 0) return;
+    
+    const isDesktop = window.innerWidth >= 749;
+    
+    // Only apply arc positioning on desktop
+    if (isDesktop) {
+      const rect = content.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      // Calculate radius based on container size
+      const radius = Math.min(rect.width, rect.height) * (radiusPercent / 100);
+      
+      // Calculate the arc span
+      const arcSpan = endAngle - startAngle;
+      
+      // --- Draw the main arc ---
+      const svg = document.getElementById('main-arc-' + sectionId);
+      if (svg) {
+        svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+        
+        const arcPathD = describeArc(centerX, centerY, radius, startAngle, endAngle);
+        
+        let path = svg.querySelector('path');
+        if (!path) {
+          path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          svg.appendChild(path);
+        }
+        path.setAttribute("d", arcPathD);
+      }
+      
+      features.forEach((feature, index) => {
+        // Calculate angle within the specified arc range
+        const angleStep = features.length > 1 ? arcSpan / (features.length - 1) : 0;
+        const angleDeg = startAngle + (angleStep * index);
+        
+        // Convert to radians
+        const angle = (angleDeg) * (Math.PI / 180);
+        
+        // Calculate position
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        // Position feature
+        feature.style.left = x + 'px';
+        feature.style.top = y + 'px';
+        
+        // Determine text alignment based on position
+        const content = feature.querySelector('.feature-content');
+        if (content) {
+          if (x < centerX - 50) {
+            content.classList.add('align-right');
+            content.classList.remove('align-left', 'align-center');
+          } else if (x > centerX + 50) {
+            content.classList.add('align-left');
+            content.classList.remove('align-right', 'align-center');
+          } else {
+            content.classList.add('align-center');
+            content.classList.remove('align-left', 'align-right');
+          }
+        }
+        
+        // Position and rotate connector line
+        const connector = feature.querySelector('.feature-connector');
+        if (connector) {
+          const rotateDeg = angleDeg + 90;
+          connector.style.height = connectorLength + 'px';
+          connector.style.transform = 'translateX(-50%) rotate(' + rotateDeg + 'deg)';
+          connector.style.top = '-' + connectorLength + 'px';
+        }
+        
+        // Show feature
+        feature.classList.add('positioned');
+      });
+    } else {
+      // Mobile: reset arc positioning, clear SVG
+      const svg = document.getElementById('main-arc-' + sectionId);
+      if (svg) {
+        svg.innerHTML = '';
+      }
+      
+      features.forEach((feature) => {
+        feature.style.left = '';
+        feature.style.top = '';
+        feature.style.transform = '';
+        feature.classList.add('positioned');
+      });
+    }
+    
+    // Setup interactions after positioning
+    setupInteractions();
+    
+    // Initialize popup click handler (once)
+    bindWindowClick();
+  }
+  
+  // Initial positioning
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', positionFeatures);
+  } else {
+    setTimeout(positionFeatures, 100);
+  }
+  
+  // Reposition on window resize
+  let resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(positionFeatures, 250);
+  });
+  
+  // Reposition when images load
+  const images = document.querySelectorAll('#arc-content-' + sectionId + ' img');
+  images.forEach(img => {
+    if (img.complete) {
+      positionFeatures();
+    } else {
+      img.addEventListener('load', positionFeatures);
+    }
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Circular Arc Features",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "center_image",
+      "label": "Center Image"
+    },
+    {
+      "type": "text",
+      "id": "center_title",
+      "label": "Center Title",
+      "default": "Affordable"
+    },
+    {
+      "type": "richtext",
+      "id": "center_text",
+      "label": "Center Text"
+    },
+    {
+      "type": "url",
+      "id": "center_link",
+      "label": "Center Link (optional)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#F5EDE4"
+    },
+    {
+      "type": "color",
+      "id": "arc_color",
+      "label": "Arc Line Color",
+      "default": "#4A90E2"
+    },
+    {
+      "type": "range",
+      "id": "arc_radius_percent",
+      "min": 20,
+      "max": 48,
+      "step": 1,
+      "unit": "%",
+      "label": "Arc Radius",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "start_angle",
+      "min": 0,
+      "max": 360,
+      "step": 10,
+      "unit": "deg",
+      "label": "Start Angle",
+      "default": 220
+    },
+    {
+      "type": "range",
+      "id": "end_angle",
+      "min": 0,
+      "max": 720,
+      "step": 10,
+      "unit": "deg",
+      "label": "End Angle",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "connector_length",
+      "min": 40,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Connector Line Length",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Feature Title"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Feature description goes here</p>"
+        },
+        {
+          "type": "header",
+          "content": "Center content"
+        },
+        {
+          "type": "richtext",
+          "id": "content_heading",
+          "label": "Content heading",
+          "default": "<h2>Affordable</h2>"
+        },
+        {
+          "type": "richtext",
+          "id": "content_text",
+          "label": "Content text",
+          "default": "<p>Your center content description goes here.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Make this block open by default",
+          "info": "Only one item can be the first opened, if none selected, the first block will be picked"
+        },
+        {
+          "type": "header",
+          "content": "Popup settings"
+        },
+        {
+          "type": "paragraph",
+          "content": "Settings for the popup content box linked to a text element in the center of the arc."
+        },
+        {
+          "type": "page",
+          "id": "popup_page",
+          "label": "Popup Page"
+        },
+        {
+          "type": "text",
+          "id": "popup_keyword",
+          "label": "Popup Keyword",
+          "info": "Enter a unique keyword to link this popup to (e.g. 'open here') the word must exist in the center content. Only works if the target word is wrapped in a <p></p> tag.",
+          "visible_if": "{{ block.settings.popup_page != blank }}"
+        },
+        {
+          "type": "header",
+          "content": "Position adjustment"
+        },
+        {
+          "type": "paragraph",
+          "content": "Adjust the position of this feature along the arc, change X and Y offsets."
+        },
+        {
+          "type": "range",
+          "id": "x_offset",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "X Offset",
+          "default": 50
+        },
+        {
+          "type": "range",
+          "id": "y_offset",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "label": "Y Offset",
+          "default": 50
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Circular Arc Features",
+      "blocks": [
+        {
+          "type": "feature"
+        },
+        {
+          "type": "feature"
+        },
+        {
+          "type": "feature"
+        },
+        {
+          "type": "feature"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,95 @@
+{% doc %}
+  Snippet: dialog-popup-page.liquid
+  Usage: Renders a link that opens a dialog popup with the content of a specified page.
+  Parameters:
+    - page: The page object containing the content to display in the popup.
+    - heading: The text to display as the clickable link that opens the popup.
+  Example:
+    {% render 'dialog-popup-page', page: pages.popup-content, heading: 'Click here for more info' %}
+{% enddoc %}
+
+<script
+  src="{{ 'dialog.js' | asset_url }}"
+  type="module"
+></script>
+
+<dialog-component
+  class="popup-link"
+  style="--normal-content-width: 60rem;--modal-max-height: 80vh;"
+>
+  <a
+    on:click="/showDialog"
+    class="link popup-link__button text-left spacing-style"
+  >
+    {{- heading -}}
+  </a>
+
+  <dialog
+    ref="dialog"
+    class="popup-link__content dialog-modal"
+    scroll-lock
+  >
+    <div class="popup-link__inner">
+      {{ page.content }}
+    </div>
+    <button
+      ref="closeButton"
+      on:click="/closeDialog"
+      class="button button-unstyled close-button popup-link__close"
+      aria-label="{{ 'accessibility.close_dialog' | t }}"
+    >
+      {{- 'icon-close.svg' | inline_asset_content -}}
+    </button>
+  </dialog>
+</dialog-component>
+
+{% stylesheet %}
+  .popup-link__button svg {
+    display: inline-block;
+    position: relative;
+    top: var(--margin-2xs);
+  }
+
+  .popup-link__content {
+    box-shadow: var(--shadow-popover);
+    border: var(--style-border-popover);
+    border-radius: var(--style-border-radius-popover);
+    background-color: var(--color-background);
+    padding: var(--padding-4xl) var(--padding-xl) var(--padding-xl);
+    max-width: var(--normal-content-width);
+    max-height: var(--modal-max-height);
+
+    @media screen and (min-width: 750px) {
+      padding: var(--padding-5xl);
+    }
+  }
+
+  .popup-link__content[open] {
+    animation: modalSlideInTop var(--animation-speed) var(--animation-easing) forwards;
+  }
+
+  .popup-link__content.dialog-closing {
+    animation: modalSlideOutTop var(--animation-speed) var(--animation-easing) forwards;
+  }
+
+  .popup-link__content--drawer {
+    position: fixed;
+    border-radius: 0;
+    width: var(--sidebar-width);
+    max-width: 95vw;
+    height: 100%;
+    margin: 0 0 0 auto;
+  }
+
+  /* Needed to ensure the drawer is full height */
+  .popup-link__content--drawer:modal {
+    max-height: 100dvh;
+  }
+
+  .popup-link__close {
+    top: var(--margin-2xs);
+    right: var(--margin-2xs);
+    opacity: 0.8;
+    animation: none;
+  }
+{% endstylesheet %}

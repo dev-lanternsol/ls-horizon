@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "hero_jVaWmY": {
       "type": "hero",
@@ -16,24 +17,36 @@
           "name": "t:names.heading",
           "settings": {
             "text": "<p>Browse our latest products</p>",
+            "mobile_text": "",
             "width": "fit-content",
             "max_width": "normal",
             "alignment": "left",
             "type_preset": "h2",
             "font": "var(--font-body--family)",
+            "enable_custom_font_weight": false,
+            "weight": "400",
             "font_size": "1rem",
             "line_height": "normal",
+            "custom_line_height": 1.5,
             "letter_spacing": "normal",
             "case": "none",
             "wrap": "pretty",
             "color": "var(--color-foreground-heading)",
+            "use_mobile_settings": false,
+            "mobile_font_size": "1rem",
+            "mobile_custom_line_height": 1.5,
             "background": false,
             "background_color": "#00000026",
             "corner_radius": 0,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
-            "padding-inline-end": 0
+            "padding-inline-end": 0,
+            "use_mobile_padding": false,
+            "padding-block-start-mobile": 0,
+            "padding-block-end-mobile": 0,
+            "padding-inline-start-mobile": 0,
+            "padding-inline-end-mobile": 0
           },
           "blocks": {}
         },
@@ -60,7 +73,10 @@
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
+        "parallax_effect": false,
+        "hide_media_on_mobile": false,
         "media_type_2": "image",
+        "link": "",
         "open_in_new_tab": false,
         "content_direction": "column",
         "vertical_on_mobile": true,
@@ -71,6 +87,7 @@
         "vertical_alignment_flex_direction_column": "flex-end",
         "gap": 24,
         "section_width": "page-width",
+        "section_width-mobile": "page-width",
         "section_height": "medium",
         "section_height_custom": 50,
         "color_scheme": "scheme-6",
@@ -81,7 +98,10 @@
         "blurred_reflection": false,
         "reflection_opacity": 75,
         "padding-block-start": 100,
-        "padding-block-end": 72
+        "padding-block-end": 72,
+        "use_mobile_padding": false,
+        "padding-block-start-mobile": 0,
+        "padding-block-end-mobile": 0
       }
     },
     "product_list_fa6P9H": {
@@ -277,10 +297,90 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "circular_arc_nDP3yp": {
+      "type": "circular-arc",
+      "blocks": {
+        "feature_PryeMz": {
+          "type": "feature",
+          "settings": {
+            "title": "Feature Title",
+            "description": "<p>Feature description goes here</p>",
+            "content_heading": "<h2>Affordable</h2>",
+            "content_text": "<p>Your center content description goes here.</p>",
+            "open_by_default": false,
+            "popup_page": "",
+            "popup_keyword": "",
+            "x_offset": 50,
+            "y_offset": 50
+          }
+        },
+        "feature_BWWqBV": {
+          "type": "feature",
+          "settings": {
+            "title": "Feature Title",
+            "description": "<p>Feature description goes here</p>",
+            "content_heading": "<h2>Affordable</h2>",
+            "content_text": "<p>Your center content description goes here.</p>",
+            "open_by_default": false,
+            "popup_page": "",
+            "popup_keyword": "",
+            "x_offset": 50,
+            "y_offset": 50
+          }
+        },
+        "feature_TaHcng": {
+          "type": "feature",
+          "settings": {
+            "title": "Feature Title",
+            "description": "<p>Feature description goes here</p>",
+            "content_heading": "<h2>Affordable</h2>",
+            "content_text": "<p>Your center content description goes here.</p>",
+            "open_by_default": false,
+            "popup_page": "",
+            "popup_keyword": "",
+            "x_offset": 50,
+            "y_offset": 50
+          }
+        },
+        "feature_zLXdAc": {
+          "type": "feature",
+          "settings": {
+            "title": "Feature Title",
+            "description": "<p>Feature description goes here</p>",
+            "content_heading": "<h2>Affordable</h2>",
+            "content_text": "<p>Your center content description goes here.</p>",
+            "open_by_default": false,
+            "popup_page": "",
+            "popup_keyword": "",
+            "x_offset": 50,
+            "y_offset": 50
+          }
+        }
+      },
+      "block_order": [
+        "feature_PryeMz",
+        "feature_BWWqBV",
+        "feature_TaHcng",
+        "feature_zLXdAc"
+      ],
+      "name": "Circular Arc Features",
+      "settings": {
+        "center_title": "Affordable",
+        "center_text": "",
+        "center_link": "",
+        "background_color": "#F5EDE4",
+        "arc_color": "#4A90E2",
+        "arc_radius_percent": 48,
+        "start_angle": 220,
+        "end_angle": 400,
+        "connector_length": 80
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
-    "product_list_fa6P9H"
+    "product_list_fa6P9H",
+    "circular_arc_nDP3yp"
   ]
 }

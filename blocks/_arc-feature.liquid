@@ -1,0 +1,179 @@
+<div class="feature-item" 
+  data-index="{{ forloop.index0 }}"
+  {% if block.settings.open_by_default %}data-default{% endif %}
+  style="
+    {% if block.settings.x_offset != '50' or block.settings.y_offset != '50' %}
+      transform: translate(-{{ 100 | minus: block.settings.x_offset }}%, -{{ 100 | minus: block.settings.y_offset }}%);
+    {% endif %}
+    --padding-block-start-mobile: {{ block.settings.padding-block-start-mobile | divided_by: 16.0 }}rem; 
+    --padding-block-end-mobile: {{ block.settings.padding-block-end-mobile | divided_by: 16.0 }}rem;"
+  {{ block.shopify_attributes }}
+>
+  
+  <div class="feature-inner">
+    <div class="feature-icon-wrapper">
+      {% if block.settings.icon %}
+        <img src="{{ block.settings.icon | image_url: width: 80 }}" 
+            alt="{{ block.settings.title }}"
+            class="feature-icon"
+            loading="lazy">
+      {% else %}
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      {% endif %}
+    </div>
+    
+    <div class="feature-content"
+      {% if block.settings.content_x_offset != '0' or block.settings.content_y_offset != '50' %}
+        style="--x-offset: {{ 100 | plus: block.settings.content_x_offset }}%; --y-offset: -{{ 100 | minus: block.settings.content_y_offset }}%;"
+      {% endif %}
+    >
+      <h3 class="feature-title">{{ block.settings.title }}</h3>
+      <div class="rte feature-description">{{ block.settings.description |  newline_to_br }}</div>
+    </div>
+
+    <div class="feature-center-data hidden--desktop">
+      {% content_for "block", type: "group", id: "feature-group" %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Arc Feature",
+  "tag": null,
+  "blocks": [],
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Icon"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Feature Title"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Feature description goes here</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_by_default",
+      "label": "Make this block open by default",
+      "info": "Only one item can be the first opened, if none selected, the first block will be picked"
+    },
+    {
+      "type": "header",
+      "content": "Position adjustment"
+    },
+    {
+      "type": "paragraph",
+      "content": "Adjust the position of this feature along the arc, change X and Y offsets."
+    },
+    {
+      "type": "range",
+      "id": "x_offset",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "X Offset",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "y_offset",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Y Offset",
+      "default": 50
+    },
+    {
+      "type": "paragraph",
+      "content": "Adjust the position of the feature content along the block, change X and Y offsets."
+    },
+    {
+      "type": "range",
+      "id": "content_x_offset",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "%",
+      "label": "X Offset",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "content_y_offset",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "label": "Y Offset",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Mobile padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start-mobile",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end-mobile",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Arc Feature",
+      "blocks": {
+        "feature-group": {
+          "type": "group",
+          "static": true,
+          "blocks": {
+            "heading": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>New arrivals</h2>"
+              }
+            },
+            "text": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<p>We will work quickly to ship your order as soon as possible. Once your order has shipped, you will receive an email with further information. Delivery times vary depending on your location.</p>",
+                "width": "100%"
+              }
+            }
+          },
+          "block_order": ["heading","text"]
+        }
+      }
+    }
+  ]
+}
+{% endschema %}

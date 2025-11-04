@@ -15,9 +15,8 @@
   
   Section Settings:
   - center_image: Main image displayed in the center
-  - center_title: Heading text above the arc
-  - center_text: Optional description text
-  - background_color: Section background color
+  - heading: Heading text above the arc
+  - description: Optional description text
   - arc_color: Color of the connecting arc line and active feature borders
   - arc_radius_percent: Size of the arc (20-48%)
   - start_angle: Starting angle of the arc (0-360°)
@@ -45,393 +44,268 @@
   @version 1.0
 {% endcomment %}
 
-<style>
-  .circular-arc-section {
-    background-color: {{ section.settings.background_color }};
-    padding: 80px 20px;
+{% style %}
+  .circular-arc-section-{{ section.id }} {
     overflow: hidden;
     position: relative;
-  }
-
-  .arc-container {
-    position: relative;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  h2.arc-title {
-    text-align: center;
-    font-size: 1.875rem;
-    line-height: 1.3;
-  }
-
-  .arc-wrapper {
-    position: relative;
-    width: 100%;
-    padding-bottom: 85%;
-    margin-bottom: -16rem;
-    margin-top: -9rem;
-  }
-
-  .arc-content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .center-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 0;
-    width: 100%;
-    max-width: 31.25rem;
-  }
-
-  .center-image {
-    width: 24rem;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    position: absolute;
-    z-index: 0;
-    left: 0;
-    right: 0;
-    padding-top: 20rem;
-  }
-
-  .center-box {
-    background: #ffffff80;
-    border-radius: 3.125rem;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    margin-top: -70px;
-    position: relative;
-    z-index: 1;
-    border: 1px solid #919191;
-  }
-
-  .content-heading h3 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin: 0.625rem 0;
-    color: #000;
-  }
-
-  .content-text p {
-    text-align: start;
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    color: #333;
-    margin-bottom: 12px;
-  }
-
-  .content-text a {
-    color: {{ section.settings.arc_color }};
-    text-decoration: underline;
-  }
-
-  .feature-item {
-    position: absolute;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    transform: translate(-50%, -50%);
-  }
-
-  .feature-item.positioned {
-    opacity: 1;
-  }
-
-  .feature-inner {
-    position: relative;
-    width: 100%;
-  }
-
-  .feature-icon-wrapper {
-    width: 4.6875rem;
-    height: 4.6875rem;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.12);
-    margin: 0 auto 20px;
-    position: relative;
-    z-index: 2;
-  }
-
-  .feature-item.active .feature-icon-wrapper {
-    border: 3px solid {{ section.settings.arc_color }};
-  }
-
-  .feature-icon {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .feature-content {
-    position: absolute;
-    top: 0;
-    transform: translateY(-15%);
-    z-index: 2;
-    width: 23rem;
-  }
-
-  .feature-content.align-left {
-    text-align: left;
-    padding-left: 2rem;
-    left: 100%;
-  }
-
-  .feature-content.align-center {
-    text-align: center;
-  }
-
-  .feature-content.align-right {
-    text-align: right;
-    padding-right: 2rem;
-    right: 100%;
-  }
-
-  .feature-title {
-    font-size: 1.0625rem;
-    font-weight: bold;
-    margin-bottom: 0.75rem;
-    color: #000;
-    line-height: 1.23;
-    font-family: var(--font-paragraph--family);
-  }
-
-  .feature-description {
-    font-size: 0.875rem;
-    line-height: 1.78;
-    color: #555;
-  }
-
-  .main-arc-path path {
-    fill: none;
-    stroke: {{ section.settings.arc_color }};
-    stroke-width: 3px;
-    stroke-dasharray: 3, 6; /* 2px dot, 6px gap */
-    stroke-linecap: round; /* Makes the dashes into dots */
-  }
-
-  .content-text a.popup-opener {
-    cursor: pointer;
-  }
-
-  .popup {
-    display: none; /* Hidden by default */
-    position: fixed;
-    z-index: 10;
-    inset: 0; /* shorthand for top, right, bottom, left */
-    background: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
-  }
-
-  .popup-content {
-    background: #fff;
-    padding: 3rem 1.5rem;
-    border-radius: 12px;
-    width: var(--normal-content-width);
-    max-height: var(--modal-max-height);
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    overflow-y: auto;
-    font-size: 1.125rem;
-  }
-
-  .close {
-    position: absolute;
-    cursor: pointer;
-    font-size: 2rem;
-    line-height: 2rem;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #2072aa;
-    color: #fff;
-    border-radius: 50%;
-    top: 10px;
-    right: 10px;
-  }
-
-  @media (max-width: 749px) {
-    .arc-wrapper {
-      min-height: unset;
-      padding-bottom: 0;
-      margin: 0;
-    }
-
     .arc-container {
-      padding: 0;
-    }
-
-    .arc-content > img {
-      display: none;
-    }
-
-    .feature-icon-wrapper {
-      width: 2.8125rem;
-      height: 2.8125rem;
-    }
-
-    .center-content {
-      display: none;
-    }
-    .arc-content,
-    .feature-item,
-    .feature-content {
       position: relative;
+      max-width: 100rem;
+      margin: 0 auto;
+      padding: 1.25rem;
     }
-    .feature-center-data {
-      display: none;
-      margin-bottom: 27px;
+    .arc-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 85%;
+      /* Adjusted for aspect ratio */
+      margin-bottom: -12rem;
+      margin-top: -3rem;
+    }
+    .arc-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .center-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 0;
+      width: 100%;
+      max-width: var(--center-content-max-width);
+    }
+    .center-box {
+      margin-top: -4.375rem;
+      position: relative;
+      z-index: 1;
+    }
+    .center-image {
+      width: 24rem;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      position: absolute;
+      z-index: 0;
+      left: 0;
+      right: 0;
+      padding-top: 20rem;
     }
     .feature-item {
-      .feature-icon-wrapper{
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
-      .feature-content,
-      .feature-center-data {
-        padding-left: 3.75rem;
-      }
-    } 
-    .feature-item.positioned.active {
-      .feature-center-data {
-        display: block;
-      }
+      position: absolute;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      transform: translate(-50%, -50%);
+    }
+    .feature-item.positioned {
+      opacity: 1;
+    }
+    .feature-inner {
+      position: relative;
+      width: 100%;
+    }
+    .feature-icon-wrapper {
+      width: 4.6875rem;
+      height: 4.6875rem;
+      background: var(--color-foreground);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0.1250rem 0.9375rem rgba(0,0,0,0.12);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .feature-item.active .feature-icon-wrapper {
+      border: 0.1875rem solid var(--color-border);
+    }
+    .feature-icon {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: contain;
+      color: var(--color-background);
     }
     .feature-content {
-      transform: translateY(0);
-    }
-    .feature-title {
-      font-size: 0.9375rem;
-    }
-
-    .feature-description p {
-      font-size: 0.9375rem;
-    }
-    
-    .content-text {
-      background: #ffffff80;
-      border: 1px solid #919191;
-      padding: 18px;
-      border-radius: 5px;
-      p {
-        font-size: 0.9375rem;
-        line-height: 1.6;
+      position: absolute;
+      top: 50%;
+      justify-content: center;
+      z-index: 2;
+      width: 23rem;
+      display: flex;
+      flex-direction: column;
+      @media only screen and (max-width: 749px) {
+        text-align: left;
+        padding-top: var(--padding-block-start-mobile);
+        padding-bottom: calc(var(--padding-block-end-mobile) / 2);
       }
     }
-    .circular-arc-section {
-      padding: 60px 15px;
+    .feature-item:not(.active) .feature-content {
+      @media only screen and (max-width: 749px) {
+        padding-bottom: var(--padding-block-end-mobile);
+      }
+    }
+    .feature-content.align-center {
+      text-align: center;
+    }
+    .feature-title {
+      font-size: 1.0625rem;
+      font-weight: bold;
+      line-height: 1.23;
+      font-family: var(--font-paragraph--family);
+      /* Optional margin override */
+      margin-bottom: 0rem;
+      @media only screen and (min-width: 750px) {
+        margin-bottom: 0.75rem;
+      }
+    }
+    .feature-description {
+      font-size: 0.875rem;     
+      line-height: 1.28;
+      padding-top: 0.3rem;
+    }
+    .main-arc-path path {
+      fill: none;
+      stroke: var(--color-border);
+      stroke-width: 0.1875rem;
+      stroke-dasharray: 3, 6; /* 0.1250rem dot, 0.3750rem gap */
+      stroke-linecap: round; /* Makes the dashes into dots */
+    }
+
+    @media only screen and (min-width: 750px) {
+      .feature-content.align-left {
+        text-align: left;
+        padding-left: 2rem;
+        right: 0;
+        transform: translate(var(--x-offset), var(--y-offset));
+      }
+      .feature-content.align-right {
+        text-align: right;
+        padding-right: 2rem;
+        left: 0;
+        transform: translate(calc(var(--x-offset) * -1), var(--y-offset));
+      }
+    }
+    @media (max-width: 749px) {
+      padding: 3.7500rem 0.9375rem;
+      .arc-wrapper {
+        min-height: unset;
+        padding-bottom: 0;
+        margin: 0;
+      }
+      .arc-container {
+        padding: 0;
+      }
+      .arc-header {
+        margin-bottom: 2rem;
+      }
+      .arc-content > img {
+        display: none;
+      }
+      .feature-icon-wrapper {
+        width: 2.8125rem;
+        height: 2.8125rem;
+      }
+      .arc-content,
+      .feature-item,
+      .feature-content {
+        position: relative;
+      }
+      .feature-center-data {
+        display: none;
+        margin-bottom: 1.6875rem;
+      }
+      .feature-item {
+        transform: translate(0, 0);
+        .feature-icon-wrapper{
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+        .feature-content,
+        .feature-center-data {
+          padding-left: 3.75rem;
+        }
+      } 
+      .feature-item.positioned.active {
+        .feature-center-data {
+          display: block;
+        }
+      }
+      .feature-content {
+        transform: translateY(0);
+      }
+      .feature-title {
+        font-size: 0.9375rem;
+      }
+      .feature-description p {
+        font-size: 0.9375rem;
+      }
     }
   }
-</style>
+{% endstyle %}
 
-<div class="circular-arc-section">
-  <div class="arc-container">
-    <h2 class="arc-title">{{ section.settings.center_title }}</h2>
-    {% if section.settings.center_text != blank %}
-      <div class="arc-description-text">
-        {{ section.settings.center_text }}
-      </div>
-    {% endif %}
-    <div class="arc-wrapper" id="arc-wrapper-{{ section.id }}">
-      <div class="arc-content" id="arc-content-{{ section.id }}">
-        <svg class="main-arc-path" id="main-arc-{{ section.id }}" 
-           width="100%" height="100%" 
-           style="position: absolute; top: 0; left: 0; z-index: 0;">
-        </svg>
-        <!-- Center Content -->
-        {% if section.settings.center_image %}
-          <img src="{{ section.settings.center_image | img_url: '600x' }}" 
-                alt="{{ section.settings.center_title }}"
-                class="center-image"
-                loading="lazy">
-        {% endif %}
-        <div class="center-content">
-          <div class="center-box">
-            <!-- Section content should be pulled from each block and should change based on which block is active, block "active" is done with the hover feature on desktop and with click on mobile -->
-            <div class="center-box-content" id="center-box-content-{{ section.id }}">
-              {% if section.blocks.first %}
-                <div class="content-heading">{{ section.blocks.first.settings.content_heading }}</div>
-                <div class="content-text">{{ section.blocks.first.settings.content_text }}</div>
-              {% endif %}
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section color-{{ section.settings.color_scheme }}"
+  data-testid="ui-test-section"
+
+  {% if request.visual_preview_mode %}
+    data-shopify-visual-preview
+  {% endif %}
+>
+  <div
+        class="
+          spacing-style
+          layout-panel-flex
+          layout-panel-flex--{{ section.settings.content_direction }}
+          section-content-wrapper
+        "
+        style="
+          {% render 'layout-panel-style', settings: section.settings %}
+          {% render 'spacing-style', settings: section.settings %}
+        "
+        data-testid="section-content"
+      >
+    <div class="circular-arc-section-{{ section.id }}">
+      <div class="arc-container text-{{ section.settings.alignment }}">
+        <div class="arc-header">
+          {% if section.blocks.size > 1 %}
+            {% content_for "block", type: "text", id: "arc-features-heading" %}
+            {% content_for "block", type: "text", id: "arc-features-description" %}
+          {% endif %}
+        </div>
+        <div class="arc-wrapper" id="arc-wrapper-{{ section.id }}">
+          <div class="arc-content" id="arc-content-{{ section.id }}">
+            <svg class="main-arc-path" id="main-arc-{{ section.id }}" 
+              width="100%" height="100%" 
+              style="position: absolute; top: 0; left: 0; z-index: 0;">
+            </svg>
+            <!-- Center Content -->
+            {% if section.settings.center_image %}
+              <img src="{{ section.settings.center_image | image_url: width: 600 }}" 
+                    alt="{{ section.settings.heading }}"
+                    class="center-image"
+                    loading="lazy">
+            {% endif %}
+            <div class="center-content hidden--mobile"
+              style="--center-content-max-width: {{ section.settings.center_content_max_width }}%;">
+              <div class="center-box"
+                style="--border-radius: 1rem;">
+                <!-- Section content should be pulled from each block and should change based on which block is active, block "active" is done with the hover feature on desktop and with click on mobile -->
+                <div class="center-box-content" id="center-box-content-{{ section.id }}">
+                </div>
+              </div>
             </div>
+            <!-- Feature Items -->
+            {% content_for 'blocks' %}
           </div>
         </div>
-
-        <!-- Feature Items -->
-        {% for block in section.blocks %}
-          <div class="feature-item" 
-            data-index="{{ forloop.index0 }}"
-            {% if block.settings.open_by_default %}data-default{% endif %}
-            {% if block.settings.x_offset != '50' or block.settings.y_offset != '50' %}
-              style="transform: translate(-{{ block.settings.x_offset }}%, -{{ block.settings.y_offset }}%);"
-            {% endif %}
-            {{ block.shopify_attributes }}
-          >
-            
-            <div class="feature-inner">
-              <div class="feature-icon-wrapper">
-                {% if block.settings.icon %}
-                  <img src="{{ block.settings.icon | img_url: '80x' }}" 
-                       alt="{{ block.settings.title }}"
-                       class="feature-icon"
-                       loading="lazy">
-                {% else %}
-                  <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 6v6l4 2"/>
-                  </svg>
-                {% endif %}
-              </div>
-              
-              <div class="feature-content">
-                <h3 class="feature-title">{{ block.settings.title }}</h3>
-                <div class="rte feature-description">{{ block.settings.description |  newline_to_br }}</div>
-              </div>
-
-              <div class="feature-center-data hidden--desktop">
-                <div class="content-heading hidden--mobile">{{ block.settings.content_heading }}</div>
-                {% if block.settings.popup_page != blank and block.settings.popup_keyword != blank %}
-                  {% capture popup_opener %} 
-                    <a data-id="popup--{{ block.id }}" class="popup-opener link popup-link__button text-left spacing-style">{{ block.settings.popup_keyword }}</a>
-                  {% endcapture %}
-                  <div class="content-text">{{ block.settings.content_text | replace: block.settings.popup_keyword, popup_opener }}</div>
-                {%  else %}
-                  <div class="content-text">{{ block.settings.content_text }}</div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-          {% if block.settings.popup_page != blank and block.settings.popup_keyword != blank %}
-            <div id="popup--{{ block.id }}" class="popup" style="--normal-content-width: 60rem;--modal-max-height: 80vh;">
-              <div class="popup-content">
-                <span data-id="popup--{{ block.id }}" class="close">&times;</span>
-                {{ block.settings.popup_page.content }}
-              </div>
-            </div>
-          {% endif %}
-        {% endfor %}
-
       </div>
     </div>
   </div>
@@ -441,64 +315,9 @@
 (function() {
   const sectionId = '{{ section.id }}';
   const radiusPercent = {{ section.settings.arc_radius_percent |  minus: 3 }};
-  const connectorLength = {{ section.settings.connector_length }};
+  const connectorLength = 0; // Removed connector line length setting
   const startAngle = {{ section.settings.start_angle }};
   const endAngle = {{ section.settings.end_angle }};
-  
-  // --- Popup initialization ---
-  function initializePopups() {
-    const popupOpeners = document.querySelectorAll('.popup-opener');
-    
-    popupOpeners.forEach(function(opener) {
-      // Remove existing listeners by cloning
-      const newOpener = opener.cloneNode(true);
-      opener.parentNode.replaceChild(newOpener, opener);
-    });
-    
-    // Re-query after cloning
-    const freshOpeners = document.querySelectorAll('.popup-opener');
-    freshOpeners.forEach(function(opener) {
-      opener.addEventListener('click', function(e) {
-        e.preventDefault();
-        const popupId = this.getAttribute('data-id');
-        const popup = document.getElementById(popupId);
-        if (popup) {
-          popup.style.display = 'block';
-        }
-      });
-    });
-    
-    // Close popup when clicking the X button
-    const closeButtons = document.querySelectorAll('.popup .close');
-    closeButtons.forEach(function(closeBtn) {
-      const newCloseBtn = closeBtn.cloneNode(true);
-      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-    });
-    
-    const freshCloseButtons = document.querySelectorAll('.popup .close');
-    freshCloseButtons.forEach(function(closeBtn) {
-      closeBtn.addEventListener('click', function() {
-        const popupId = this.getAttribute('data-id');
-        const popup = document.getElementById(popupId);
-        if (popup) {
-          popup.style.display = 'none';
-        }
-      });
-    });
-  }
-  
-  // Close popup when clicking outside the content (only bind once)
-  let windowClickBound = false;
-  function bindWindowClick() {
-    if (!windowClickBound) {
-      window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('popup')) {
-          e.target.style.display = 'none';
-        }
-      });
-      windowClickBound = true;
-    }
-  }
   
   // --- Helper function to convert polar coords to cartesian ---
   function polarToCartesian(cx, cy, r, angleDeg) {
@@ -529,30 +348,16 @@
   
   // --- Update center box content ---
   function updateCenterBox(featureItem) {
-    const centerBoxContent = document.getElementById('center-box-content-' + sectionId);
-    if (!centerBoxContent) return;
+    const centerBoxTarget = document.getElementById('center-box-content-' + sectionId);
+    if (!centerBoxTarget) return;
 
-    const targetHeading = centerBoxContent.querySelector('.content-heading');
-    const targetText = centerBoxContent.querySelector('.content-text');
-    
     const featureCenterData = featureItem.querySelector('.feature-center-data');
-    if (!featureCenterData) return;
-    
-    const dataHeading = featureCenterData.querySelector('.content-heading');
-    const dataText = featureCenterData.querySelector('.content-text');
 
-    targetHeading.innerHTML = '';
-    targetText.innerHTML = '';
+    centerBoxTarget.innerHTML = '';
     
-    if (dataHeading) {
-      targetHeading.innerHTML += dataHeading.innerHTML;
+    if (featureCenterData) {
+      centerBoxTarget.innerHTML = featureCenterData.innerHTML;
     }
-    if (dataText) {
-      targetText.innerHTML += dataText.innerHTML;
-    }
-    
-    // Re-initialize popups after content update
-    initializePopups();
   }
   
   // --- Setup interaction handlers ---
@@ -716,9 +521,6 @@
     
     // Setup interactions after positioning
     setupInteractions();
-    
-    // Initialize popup click handler (once)
-    bindWindowClick();
   }
   
   // Initial positioning
@@ -750,39 +552,47 @@
 {% schema %}
 {
   "name": "Circular Arc Features",
+  "blocks": [
+    {
+      "type": "_arc-feature"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["header"]
+  },
   "settings": [
+    {
+      "type": "header",
+      "content": "Section settings"
+    },
     {
       "type": "image_picker",
       "id": "center_image",
       "label": "Center Image"
     },
     {
-      "type": "text",
-      "id": "center_title",
-      "label": "Center Title",
-      "default": "Affordable"
+      "type": "header",
+      "content": "Layout settings"
     },
     {
-      "type": "richtext",
-      "id": "center_text",
-      "label": "Center Text"
+      "type": "range",
+      "id": "center_content_max_width",
+      "label": "Center content max width",
+      "min": 30,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 40
     },
     {
-      "type": "url",
-      "id": "center_link",
-      "label": "Center Link (optional)"
+      "type": "header",
+      "content": "t:content.appearance"
     },
     {
-      "type": "color",
-      "id": "background_color",
-      "label": "Background Color",
-      "default": "#F5EDE4"
-    },
-    {
-      "type": "color",
-      "id": "arc_color",
-      "label": "Arc Line Color",
-      "default": "#4A90E2"
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
     },
     {
       "type": "range",
@@ -792,7 +602,7 @@
       "step": 1,
       "unit": "%",
       "label": "Arc Radius",
-      "default": 42
+      "default": 37
     },
     {
       "type": "range",
@@ -815,128 +625,231 @@
       "default": 400
     },
     {
-      "type": "range",
-      "id": "connector_length",
-      "min": 40,
-      "max": 120,
-      "step": 10,
-      "unit": "px",
-      "label": "Connector Line Length",
-      "default": 80
-    }
-  ],
-  "blocks": [
+      "type": "header",
+      "content": "t:content.padding"
+    },
     {
-      "type": "feature",
-      "name": "Feature",
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "icon",
-          "label": "Icon"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "Feature Title"
-        },
-        {
-          "type": "richtext",
-          "id": "description",
-          "label": "Description",
-          "default": "<p>Feature description goes here</p>"
-        },
-        {
-          "type": "header",
-          "content": "Center content"
-        },
-        {
-          "type": "richtext",
-          "id": "content_heading",
-          "label": "Content heading",
-          "default": "<h2>Affordable</h2>"
-        },
-        {
-          "type": "richtext",
-          "id": "content_text",
-          "label": "Content text",
-          "default": "<p>Your center content description goes here.</p>"
-        },
-        {
-          "type": "checkbox",
-          "id": "open_by_default",
-          "label": "Make this block open by default",
-          "info": "Only one item can be the first opened, if none selected, the first block will be picked"
-        },
-        {
-          "type": "header",
-          "content": "Popup settings"
-        },
-        {
-          "type": "paragraph",
-          "content": "Settings for the popup content box linked to a text element in the center of the arc."
-        },
-        {
-          "type": "page",
-          "id": "popup_page",
-          "label": "Popup Page"
-        },
-        {
-          "type": "text",
-          "id": "popup_keyword",
-          "label": "Popup Keyword",
-          "info": "Enter a unique keyword to link this popup to (e.g. 'open here') the word must exist in the center content. Only works if the target word is wrapped in a <p></p> tag.",
-          "visible_if": "{{ block.settings.popup_page != blank }}"
-        },
-        {
-          "type": "header",
-          "content": "Position adjustment"
-        },
-        {
-          "type": "paragraph",
-          "content": "Adjust the position of this feature along the arc, change X and Y offsets."
-        },
-        {
-          "type": "range",
-          "id": "x_offset",
-          "min": 0,
-          "max": 100,
-          "step": 1,
-          "unit": "%",
-          "label": "X Offset",
-          "default": 50
-        },
-        {
-          "type": "range",
-          "id": "y_offset",
-          "min": 0,
-          "max": 100,
-          "step": 1,
-          "unit": "%",
-          "label": "Y Offset",
-          "default": 50
-        }
-      ]
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Mobile padding"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_mobile_padding",
+      "label": "Use mobile padding",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start-mobile",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.use_mobile_padding }}"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end-mobile",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.use_mobile_padding }}"
     }
   ],
   "presets": [
     {
       "name": "Circular Arc Features",
       "category": "t:categories.layout",
-      "blocks": [
-        {
-          "type": "feature"
+      "blocks": {
+        "arc-features-heading": {
+          "type": "text",
+          "name": "Heading",
+          "static": true,
+          "settings": {
+            "text": "<h2>Arc Features</h2>",
+            "width": "100%",
+            "alignment": "center",
+            "padding-block-end": 10
+          }
         },
-        {
-          "type": "feature"
+        "arc-features-description": {
+          "type": "text",
+          "name": "Description",
+          "static": true,
+          "settings": {
+            "text": "<p>A dynamic section that displays feature items positioned along a circular arc path.</p>",
+            "width": "100%",
+            "alignment": "center"
+          }
         },
-        {
-          "type": "feature"
+        "feature-1": {
+          "type": "_arc-feature",
+          "settings": {
+            "title": "Fast & Free Shipping",
+            "description": "<p>Get your order delivered quickly with no extra cost.</p>",
+          },
+          "blocks": {
+            "feature-group": {
+              "type": "group",
+              "static": true,
+              "name": "Center Content Group",
+              "settings": {
+                "inherit_color_scheme": false,
+                "color_scheme": "scheme-2",
+                "padding-block-start": 20,
+                "padding-block-end": 20,
+                "padding-inline-start": 20,
+                "padding-inline-end": 20,
+                "use_mobile_padding": true,
+                "padding-block-start-mobile": 10,
+                "padding-block-end-mobile": 10,
+                "padding-inline-start-mobile": 10,
+                "padding-inline-end-mobile": 10
+              },
+              "blocks": {
+                "heading": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Fast & Free Shipping</h2>"
+                  }
+                },
+                "text": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>We offer fast, reliable, and free shipping on all orders above a certain amount. Your products are carefully packed and shipped within 24–48 hours.</p>",
+                    "width": "100%"
+                  }
+                }
+              },
+              "block_order": ["heading","text"]
+            }
+          },
+          "block_order": ["group"]
         },
-        {
-          "type": "feature"
+        "feature-2": {
+          "type": "_arc-feature",
+          "settings": {
+            "title": "Easy Returns",
+            "description": "<p>Hassle-free returns within 30 days.</p>",
+          },
+          "blocks": {
+            "feature-group": {
+              "type": "group",
+              "static": true,
+              "name": "Center Content Group",
+              "settings": {
+                "inherit_color_scheme": false,
+                "color_scheme": "scheme-2",
+                "padding-block-start": 20,
+                "padding-block-end": 20,
+                "padding-inline-start": 20,
+                "padding-inline-end": 20,
+                "use_mobile_padding": true,
+                "padding-block-start-mobile": 10,
+                "padding-block-end-mobile": 10,
+                "padding-inline-start-mobile": 10,
+                "padding-inline-end-mobile": 10
+              },
+              "blocks": {
+                "heading": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Easy Returns</h2>"
+                  }
+                },
+                "text": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>Changed your mind? No problem. Enjoy a smooth return process within 30 days of receiving your order. Simply contact us and we’ll guide you through every step.</p>",
+                    "width": "100%"
+                  }
+                }
+              },
+              "block_order": ["heading","text"]
+            }
+          },
+          "block_order": ["group"]
+        },
+        "feature-3": {
+          "type": "_arc-feature",
+          "settings": {
+            "title": "Secure Payments",
+            "description": "<p>Your data and transactions are always protected.</p>",
+          },
+          "blocks": {
+            "feature-group": {
+              "type": "group",
+              "static": true,
+              "name": "Center Content Group",
+              "settings": {
+                "inherit_color_scheme": false,
+                "color_scheme": "scheme-2",
+                "padding-block-start": 20,
+                "padding-block-end": 20,
+                "padding-inline-start": 20,
+                "padding-inline-end": 20,
+                "use_mobile_padding": true,
+                "padding-block-start-mobile": 10,
+                "padding-block-end-mobile": 10,
+                "padding-inline-start-mobile": 10,
+                "padding-inline-end-mobile": 10
+              },
+              "blocks": {
+                "heading": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Secure Payments</h2>"
+                  }
+                },
+                "text": {
+                  "type": "text",
+                  "name": "t:names.text",
+                  "settings": {
+                    "text": "<p>We use industry-leading encryption and trusted payment gateways to ensure your checkout experience is safe and secure.</p>",
+                    "width": "100%"
+                  }
+                }
+              },
+              "block_order": ["heading","text"]
+            }
+          },
+          "block_order": ["group"]
         }
+      },
+      "block_order": [
+        "feature-1",
+        "feature-2",
+        "feature-3"
       ]
     }
   ]

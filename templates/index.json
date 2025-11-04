@@ -372,9 +372,9 @@
         "background_color": "#F5EDE4",
         "arc_color": "#4A90E2",
         "arc_radius_percent": 48,
-        "start_angle": 0,
+        "start_angle": 10,
         "end_angle": 360,
-        "connector_length": 80
+        "connector_length": 120
       }
     }
   },

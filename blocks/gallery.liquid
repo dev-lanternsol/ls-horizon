@@ -71,6 +71,29 @@
       "content": "Gallery Settings"
     },
     {
+      "type": "select",
+      "id": "animation_type",
+      "label": "Animation type",
+      "options": [
+        {
+          "value": "slide",
+          "label": "Slide"
+        },
+        {
+          "value": "fade",
+          "label": "Fade"
+        }
+      ],
+      "default": "slide"
+    },
+    {
+      "type": "checkbox",
+      "id": "infinite_loop",
+      "label": "Infinite loop",
+      "info": "Create seamless infinite scrolling by duplicating slides",
+      "default": false
+    },
+    {
       "type": "range",
       "id": "duration",
       "label": "Auto scroll every (seconds)",
@@ -172,14 +195,14 @@
         }
       ],
       "default": "always",
-      "visible_if": "{{ block.settings.show_arrows == true }}"
+      "visible_if": "{{ block.settings.show_arrows_on_desktop == true or block.settings.show_arrows_on_mobile == true }}"
     },
     {
       "type": "image_picker",
       "id": "custom_arrows",
       "label": "Custom arrows",
       "info": "You can upload a SVG file to replace the default arrows. Only one image is needed, it will be flipped for the left arrow.",
-      "visible_if": "{{ block.settings.show_arrows == true }}"
+      "visible_if": "{{ block.settings.show_arrows_on_desktop == true or block.settings.show_arrows_on_mobile == true }}"
     },
     {
       "type": "range",
@@ -190,7 +213,7 @@
       "step": 1,
       "unit": "px",
       "default": 30,
-      "visible_if": "{{ block.settings.show_arrows == true and block.settings.custom_arrows != blank }}"
+      "visible_if": "{{ block.settings.show_arrows_on_desktop == true and block.settings.custom_arrows != blank }}"
     },
     {
       "type": "header",

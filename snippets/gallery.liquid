@@ -19,6 +19,8 @@
     {% endif %}
     data-slides-to-show="{{ settings.slides_per_view | default: 1 }}"
     data-slides-to-scroll="{{ settings.slides_per_scroll | default: 1 }}"
+    data-animation-type="{{ settings.animation_type | default: 'slide' }}"
+    data-infinite-loop="{{ settings.infinite_loop | default: false }}"
     {% if settings.use_mobile_settings %}
       data-mobile-slides-to-show="{{ settings.mobile_slides_per_view | default: 1 }}"
       data-mobile-slides-to-scroll="{{ settings.mobile_slides_per_scroll | default: 1 }}"
@@ -26,6 +28,7 @@
     style="
       {% render 'spacing-style', settings: settings %}
       --gap: {{ settings.gap | divided_by: 16.0 | default: 1 }}rem;
+      --arrows-size: {{ settings.arrows_width | divided_by: 16.0 | default: 2 }}rem;
       {{ style }}
     "
     {{ shopify_attributes }}

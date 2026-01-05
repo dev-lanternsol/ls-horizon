@@ -1,9 +1,9 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Horizon",
+    "theme_name": "Horizon: LS Mod",
     "theme_version": "3.0.0",
-    "theme_author": "Shopify",
+    "theme_author": "Lantern Sol",
     "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
     "theme_support_url": "https://support.shopify.com/"
   },
@@ -1427,6 +1427,16 @@
         ],
         "default": "lift",
         "info": "t:info.hover_effects"
+      },
+      {
+        "type": "header",
+        "content": "GSAP"
+      },
+      {
+        "type": "checkbox",
+        "id": "gsap_enabled",
+        "label": "Enable GSAP animations",
+        "default": false
       }
     ]
   },

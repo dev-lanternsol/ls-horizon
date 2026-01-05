@@ -142,6 +142,8 @@ class DraggableSlider {
     
     this.calculator = new SliderCalculator(slider);
     this.lastWidth = window.innerWidth;
+    this.animationType = slider.getAttribute('data-animation-type') || 'slide';
+    this.infiniteLoop = slider.getAttribute('data-infinite-loop') === 'true';
     
     // Check if slider should be initialized
     if (!this.shouldInitialize()) {
@@ -180,22 +182,33 @@ class DraggableSlider {
     this.slider.style.userSelect = 'none';
     this.slider.style.webkitUserSelect = 'none';
     
+    // Add animation type class to slider
+    this.slider.classList.add(`animation-${this.animationType}`);
+    
+    // For fade animation, disable dragging
+    if (this.animationType === 'fade') {
+      this.slider.style.cursor = 'default';
+    }
+    
     this.slider.addEventListener('dragstart', (e) => e.preventDefault());
     
-    // Mouse events
-    this.slider.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-    this.slider.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-    this.slider.addEventListener('mouseup', () => this.handleMouseUp());
-    this.slider.addEventListener('mouseleave', () => this.handleMouseUp());
-    
-    // Touch events
-    this.slider.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
-    this.slider.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
-    this.slider.addEventListener('touchend', () => this.handleTouchEnd());
-    this.slider.addEventListener('touchcancel', () => this.handleTouchEnd());
-    
-    this.slider.addEventListener('click', (e) => this.handleClick(e), true);
-    this.slider.addEventListener('selectstart', (e) => { if (this.state.isDragging) e.preventDefault(); });
+    // Only add drag/touch events for slide animation
+    if (this.animationType === 'slide') {
+      // Mouse events
+      this.slider.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+      this.slider.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+      this.slider.addEventListener('mouseup', () => this.handleMouseUp());
+      this.slider.addEventListener('mouseleave', () => this.handleMouseUp());
+      
+      // Touch events
+      this.slider.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+      this.slider.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+      this.slider.addEventListener('touchend', () => this.handleTouchEnd());
+      this.slider.addEventListener('touchcancel', () => this.handleTouchEnd());
+      
+      this.slider.addEventListener('click', (e) => this.handleClick(e), true);
+      this.slider.addEventListener('selectstart', (e) => { if (this.state.isDragging) e.preventDefault(); });
+    }
 
     this.resizeObserver = new ResizeObserver(() => this.handleResize());
     this.resizeObserver.observe(this.slider);
@@ -377,13 +390,122 @@ class DraggableSlider {
   }
 
   slideInDirection(direction) {
-    let target;
-    if (direction === 'next') {
-      target = this.calculator.getNextSnapPoint(this.state.currentPosition);
+    if (this.infiniteLoop) {
+      this.slideInfinite(direction);
+    } else if (this.animationType === 'fade') {
+      this.fadeToDirection(direction);
     } else {
-      target = this.calculator.getPrevSnapPoint(this.state.currentPosition);
+      let target;
+      if (direction === 'next') {
+        target = this.calculator.getNextSnapPoint(this.state.currentPosition);
+      } else {
+        target = this.calculator.getPrevSnapPoint(this.state.currentPosition);
+      }
+      this.animateTo(target);
     }
-    this.animateTo(target);
+  }
+
+  slideInfinite(direction) {
+    if (this.animationType === 'fade') {
+      this.fadeInfinite(direction);
+    } else {
+      // For slide animation with infinite loop
+      const snapPoints = this.calculator.snapPoints;
+      const currentIndex = snapPoints.findIndex(snap => 
+        Math.abs(snap - this.state.currentPosition) < 10
+      );
+      
+      let targetIndex;
+      if (direction === 'next') {
+        targetIndex = currentIndex >= snapPoints.length - 1 ? 0 : currentIndex + 1;
+      } else {
+        targetIndex = currentIndex <= 0 ? snapPoints.length - 1 : currentIndex - 1;
+      }
+      
+      const target = snapPoints[targetIndex];
+      this.animateTo(target);
+    }
+  }
+
+  fadeInfinite(direction) {
+    // For fade animation with infinite loop, just wrap around
+    const snapPoints = this.calculator.snapPoints;
+    const currentIndex = snapPoints.findIndex(snap => 
+      Math.abs(snap - this.state.currentPosition) < 10
+    );
+    
+    let targetIndex;
+    if (direction === 'next') {
+      targetIndex = currentIndex >= snapPoints.length - 1 ? 0 : currentIndex + 1;
+    } else {
+      targetIndex = currentIndex <= 0 ? snapPoints.length - 1 : currentIndex - 1;
+    }
+    
+    const target = snapPoints[targetIndex];
+    this.fadeAnimateTo(target);
+  }
+
+  fadeToDirection(direction) {
+    let target;
+    if (this.infiniteLoop) {
+      // Use same infinite logic for fade
+      const snapPoints = this.calculator.snapPoints;
+      const currentIndex = snapPoints.findIndex(snap => 
+        Math.abs(snap - this.state.currentPosition) < 10
+      );
+      
+      let targetIndex;
+      if (direction === 'next') {
+        targetIndex = currentIndex >= snapPoints.length - 1 ? 0 : currentIndex + 1;
+      } else {
+        targetIndex = currentIndex <= 0 ? snapPoints.length - 1 : currentIndex - 1;
+      }
+      
+      target = snapPoints[targetIndex];
+    } else {
+      if (direction === 'next') {
+        target = this.calculator.getNextSnapPoint(this.state.currentPosition);
+      } else {
+        target = this.calculator.getPrevSnapPoint(this.state.currentPosition);
+      }
+    }
+    
+    if (target !== this.state.currentPosition) {
+      this.fadeAnimateTo(target);
+    }
+  }
+
+  fadeAnimateTo(target, duration = SLIDER_CONFIG.SCROLL_DURATION) {
+    if (this.state.animationId) cancelAnimationFrame(this.state.animationId);
+    
+    this.state.isAnimating = true;
+    const fadeOutDuration = duration * 0.4; // 40% of time for fade out
+    const fadeInDuration = duration * 0.4;  // 40% of time for fade in
+    const moveDelay = duration * 0.2;       // 20% pause between
+    
+    // Fade out
+    this.track.style.transition = `opacity ${fadeOutDuration}ms ease-out`;
+    this.track.style.opacity = '0';
+    
+    setTimeout(() => {
+      // Move to new position instantly while invisible
+      this.state.currentPosition = target;
+      this.track.style.transform = `translateX(${-target}px)`;
+      
+      this.slider.dispatchEvent(new CustomEvent('sliderMoved'));
+      
+      setTimeout(() => {
+        // Fade back in
+        this.track.style.transition = `opacity ${fadeInDuration}ms ease-in`;
+        this.track.style.opacity = '1';
+        
+        setTimeout(() => {
+          // Clean up
+          this.track.style.transition = '';
+          this.state.isAnimating = false;
+        }, fadeInDuration);
+      }, moveDelay);
+    }, fadeOutDuration);
   }
 
   startMomentumScroll() {
@@ -391,6 +513,10 @@ class DraggableSlider {
   }
   
   snapToNearest() {
+    if (this.animationType === 'fade') {
+      // For fade animation, we're already at a snap point
+      return;
+    }
     const target = this.calculator.findNearestSnapPoint(this.state.currentPosition);
     this.animateTo(target);
   }
@@ -458,7 +584,9 @@ class SliderDots {
   update() {
     if (!this.dotsContainer || !this.instance) return;
     
-    const slideCount = this.slider.querySelector('.slider-track')?.children.length || 0;
+    const slideCount = this.instance.infiniteLoop 
+      ? this.instance.originalSlides.length 
+      : this.slider.querySelector('.slider-track')?.children.length || 0;
     const slidesToShow = this.calculator.slidesPerView;
     
     // Hide dots if not enough slides
@@ -469,21 +597,57 @@ class SliderDots {
     
     this.dotsContainer.style.display = '';
     
-    const currentPosition = this.instance.state.currentPosition;
-    const snapPoints = this.calculator.snapPoints;
-
     this.dotsContainer.innerHTML = '';
-    snapPoints.forEach((snap, index) => {
-      const dot = document.createElement('button');
-      dot.className = 'slider-dot full-unstyled-button';
-      dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
-      const threshold = (this.calculator.columnWidth + this.calculator.gap) / 2;
-      if (Math.abs(currentPosition - snap) < threshold) {
-        dot.classList.add('active');
+    
+    if (this.instance.infiniteLoop) {
+      // For infinite loop, create dots based on original slides
+      const slideWidth = this.calculator.columnWidth + this.calculator.gap;
+      const slidesToDuplicate = Math.max(this.instance.slidesPerView || 1, 1);
+      const originalStartPosition = slidesToDuplicate * slideWidth;
+      
+      for (let i = 0; i < this.instance.originalSlides.length; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'slider-dot full-unstyled-button';
+        dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+        
+        const slidePosition = originalStartPosition + (i * slideWidth);
+        const threshold = slideWidth / 2;
+        if (Math.abs(this.instance.state.currentPosition - slidePosition) < threshold) {
+          dot.classList.add('active');
+        }
+        
+        dot.addEventListener('click', () => {
+          if (this.instance.animationType === 'fade') {
+            this.instance.fadeAnimateTo(slidePosition);
+          } else {
+            this.instance.animateTo(slidePosition);
+          }
+        });
+        this.dotsContainer.appendChild(dot);
       }
-      dot.addEventListener('click', () => this.instance.animateTo(snap));
-      this.dotsContainer.appendChild(dot);
-    });
+    } else {
+      // For finite slider, use snap points logic
+      const currentPosition = this.instance.state.currentPosition;
+      const snapPoints = this.calculator.snapPoints;
+
+      snapPoints.forEach((snap, index) => {
+        const dot = document.createElement('button');
+        dot.className = 'slider-dot full-unstyled-button';
+        dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+        const threshold = (this.calculator.columnWidth + this.calculator.gap) / 2;
+        if (Math.abs(currentPosition - snap) < threshold) {
+          dot.classList.add('active');
+        }
+        
+        // Use appropriate animation method based on type
+        if (this.instance.animationType === 'fade') {
+          dot.addEventListener('click', () => this.instance.fadeAnimateTo(snap));
+        } else {
+          dot.addEventListener('click', () => this.instance.animateTo(snap));
+        }
+        this.dotsContainer.appendChild(dot);
+      });
+    }
   }
 }
 
@@ -516,14 +680,12 @@ class SliderArrows {
 
   scrollPrev() {
     if (!this.instance) return;
-    const target = this.calculator.getPrevSnapPoint(this.instance.state.currentPosition);
-    this.instance.animateTo(target);
+    this.instance.slideInDirection('prev');
   }
 
   scrollNext() {
     if (!this.instance) return;
-    const target = this.calculator.getNextSnapPoint(this.instance.state.currentPosition);
-    this.instance.animateTo(target);
+    this.instance.slideInDirection('next');
   }
 
   updateButtonStates() {
@@ -541,9 +703,15 @@ class SliderArrows {
     this.prevButton.style.display = '';
     this.nextButton.style.display = '';
     
-    const maxScroll = this.calculator.snapPoints[this.calculator.snapPoints.length - 1] || 0;
-    this.prevButton.classList.toggle('disabled', this.instance.state.currentPosition <= 0);
-    this.nextButton.classList.toggle('disabled', this.instance.state.currentPosition >= maxScroll - 1);
+    // For infinite loop, never disable arrows
+    if (this.instance.infiniteLoop) {
+      this.prevButton.classList.remove('disabled');
+      this.nextButton.classList.remove('disabled');
+    } else {
+      const maxScroll = this.calculator.snapPoints[this.calculator.snapPoints.length - 1] || 0;
+      this.prevButton.classList.toggle('disabled', this.instance.state.currentPosition <= 0);
+      this.nextButton.classList.toggle('disabled', this.instance.state.currentPosition >= maxScroll - 1);
+    }
   }
 }
 
@@ -575,11 +743,7 @@ class AutoScrollSlider {
 
   autoScroll() {
     if (!this.isPaused && this.instance) {
-      let nextSnap = this.calculator.getNextSnapPoint(this.instance.state.currentPosition);
-      if (nextSnap <= this.instance.state.currentPosition) {
-        nextSnap = 0; // Loop back to the start
-      }
-      this.instance.animateTo(nextSnap);
+      this.instance.slideInDirection('next');
     }
   }
 

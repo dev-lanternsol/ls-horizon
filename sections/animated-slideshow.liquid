@@ -1,0 +1,458 @@
+<style>
+.gsap-animated-slideshow {
+  position: relative;
+  height: {{ section.settings.section_height | default: '100vh' }};
+  overflow: hidden;
+  background: {{ section.settings.background_color | default: '#4361ee' }};
+
+  * {
+    box-sizing: border-box;
+    user-select: none;
+  }
+
+  figure {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .slide {
+    height: 100%;
+    width: 100%;
+    top: 0;
+    position: absolute;
+    visibility: hidden;
+
+    .slide__outer,
+    .slide__inner {
+      width: 100%;
+      height: 100%;
+      overflow-y: hidden;
+    }
+
+    .slide__content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: 0;
+    }
+
+    .slide__container {
+      position: relative;
+      max-width: 1400px;
+      width: 100vw;
+      margin: 0 auto;
+      height: 90vh;
+      margin-bottom: 10vh;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+      padding: 0 1rem;
+    }
+
+    .slide__heading {
+      --width: 200;
+      display: block;
+      text-align: left;
+      font-family: "Bandeins Sans .slide Strange Variable";
+      font-size: clamp(5rem, 15vw, 15rem);
+      font-weight: 900;
+      font-variation-settings: "wdth" var(--width);
+      margin: 0;
+      padding: 0;
+      color: #f2f1fc;
+      z-index: 999;
+      mix-blend-mode: difference;
+      grid-area: 2 / 2 / 3 / 10;
+      align-self: end;
+    }
+
+    .slide__img-cont {
+      margin-top: 4rem;
+      grid-area: 4 / 1 / 11 / 8;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .slide:nth-of-type(1) {
+    visibility: visible;
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+
+    .overlay__content {
+      max-width: 1400px;
+      width: 100vw;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 90vh;
+      margin-bottom: 10vh;
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      grid-template-rows: repeat(10, 1fr);
+      grid-column-gap: 0px;
+      grid-row-gap: 0px;
+    }
+
+    .overlay__img-cont {
+      position: relative;
+      overflow: hidden;
+      margin: 0;
+      grid-area: 4 / 3 / 9 / 11;
+
+      img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+      }
+    }
+
+    .overlay__count {
+      grid-area: 3 / 10 / 4 / 10;
+      font-size: clamp(3rem, 4vw, 15rem);
+      margin: 0;
+      padding: 0;
+      text-align: right;
+      border-bottom: 7px white solid;
+    }
+  }
+}
+
+  @media screen and (min-width: 900px) {
+  .overlay__content,
+  .slide__container {
+    padding: 0 3rem;
+    margin-top: 10vh;
+    height: 80vh;
+  }
+
+  .overlay__img-cont {
+    grid-area: 5 / 4 / 10 / 11;
+  }
+
+  .overlay__count {
+    grid-area: 3 / 10 / 4 / 11;
+  }
+
+  .slide__img-cont {
+    margin-top: 0;
+    grid-area: 3 / 2 / 8 / 7;
+  }
+
+  .slide__heading {
+    grid-area: 1 / 1 / 4 / 10;
+  }
+  }
+</style>
+
+<div class="gsap-animated-slideshow">
+  {% for block in section.blocks %}
+    {% if block.type == 'slide' %}
+      <section class="slide" style="--slide-bg: {{ block.settings.slide_background | default: '#6d597a' }}">
+        <div class="slide__outer">
+          <div class="slide__inner">
+            <div class="slide__content" style="background-color: var(--slide-bg);">
+              <div class="slide__container">
+                <h2 class="slide__heading">{{ block.settings.heading | default: 'SLIDE' }}</h2>
+                <figure class="slide__img-cont">
+                  {% if block.settings.slide_image %}
+                    <img class="slide__img" 
+                         src="{{ block.settings.slide_image | image_url: width: 800 }}" 
+                         alt="{{ block.settings.slide_image.alt | escape }}"
+                         loading="lazy">
+                  {% else %}
+                    <div class="placeholder-image border-style size-style slide__img" style="{{ image_border_style }}">
+                      {{ 'detailed-apparel-1' | placeholder_svg_tag: 'hero__image' }}
+                    </div>
+                  {% endif %}
+                </figure>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+  {% endfor %}
+
+  <section class="overlay">
+    <div class="overlay__content">
+      <p class="overlay__count">0<span class="count">1</span></p>
+      <figure class="overlay__img-cont">
+        {% for block in section.blocks %}
+          {% if block.type == 'slide' and block.settings.overlay_image %}
+            <img class="image" 
+                 src="{{ block.settings.overlay_image | image_url: width: 1200 }}" 
+                 alt="{{ block.settings.overlay_image.alt | escape }}"
+                 loading="lazy" />
+          {% elsif block.type == 'slide' %}
+            <img class="image" 
+                 src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxNDU4OXwwfDF8cmFuZG9tfHx8fHx8fHx8MTY0NjMxOTU4Mw&ixlib=rb-1.2.1&q=80&w=800" 
+                 alt="Default overlay image" />
+          {% endif %}
+        {% endfor %}
+      </figure>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Progressive enhancement check
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    console.warn('GSAP or ScrollTrigger not loaded - slideshow disabled');
+  } else {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const slideshowContainer = document.querySelector('.gsap-animated-slideshow');
+    const sections = gsap.utils.toArray(".gsap-animated-slideshow .slide");
+    const images = gsap.utils.toArray(".gsap-animated-slideshow .image").reverse();
+    const slideImages = gsap.utils.toArray(".gsap-animated-slideshow .slide__img");
+    const outerWrappers = gsap.utils.toArray(".gsap-animated-slideshow .slide__outer");
+    const innerWrappers = gsap.utils.toArray(".gsap-animated-slideshow .slide__inner");
+    const count = document.querySelector(".gsap-animated-slideshow .count");
+    
+    const numSlides = sections.length;
+
+    // Set initial positions
+    gsap.set(outerWrappers, { xPercent: 100 });
+    gsap.set(innerWrappers, { xPercent: -100 });
+    gsap.set(".gsap-animated-slideshow .slide:nth-of-type(1) .slide__outer", { xPercent: 0 });
+    gsap.set(".gsap-animated-slideshow .slide:nth-of-type(1) .slide__inner", { xPercent: 0 });
+    
+    // Set initial z-index and visibility
+    gsap.set([sections, images], { zIndex: 0, autoAlpha: 0 });
+    gsap.set([sections[0], images[numSlides - 1]], { zIndex: 1, autoAlpha: 1 });
+
+    // Create the main timeline
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: slideshowContainer,
+        start: "top top",
+        end: () => `+=${numSlides * 100}%`, // Scroll distance = number of slides * viewport height
+        scrub: 1,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // Build animations for each slide transition
+    sections.forEach((section, i) => {
+      if (i === 0) return; // Skip first slide (already visible)
+      
+      const prevSection = sections[i - 1];
+      const prevHeading = prevSection.querySelector(".slide__heading");
+      const currentHeading = section.querySelector(".slide__heading");
+      
+      // Calculate position in timeline (each transition takes 1 second in timeline time)
+      const position = (i - 1) * 1;
+      
+      // Set z-index and visibility at start of this transition
+      tl.set([sections[i], images[numSlides - 1 - i]], { zIndex: 2, autoAlpha: 1 }, position);
+      
+      // Update counter
+      tl.set(count, { textContent: i + 1 }, position + 0.32);
+      
+      // Slide in next section
+      tl.fromTo(
+        outerWrappers[i],
+        { xPercent: 100 },
+        { xPercent: 0, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      tl.fromTo(
+        innerWrappers[i],
+        { xPercent: -100 },
+        { xPercent: 0, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      // Animate headings
+      tl.to(
+        prevHeading,
+        { "--width": 800, xPercent: 30, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      tl.fromTo(
+        currentHeading,
+        { "--width": 800, xPercent: -30 },
+        { "--width": 200, xPercent: 0, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      // Animate overlay images
+      tl.fromTo(
+        images[numSlides - 1 - i],
+        { xPercent: 125, scaleX: 1.5, scaleY: 1.3 },
+        { xPercent: 0, scaleX: 1, scaleY: 1, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      tl.fromTo(
+        images[numSlides - i],
+        { xPercent: 0, scaleX: 1, scaleY: 1 },
+        { xPercent: -125, scaleX: 1.5, scaleY: 1.3, duration: 1, ease: "expo.inOut" },
+        position
+      );
+      
+      // Animate slide images
+      tl.fromTo(
+        slideImages[i],
+        { scale: 2 },
+        { scale: 1, duration: 1, ease: "expo.inOut" },
+        position
+      );
+    });
+
+    // Optional: Keyboard navigation
+    const enableKeyboard = {{ section.settings.enable_keyboard_navigation | default: false | json }};
+    
+    if (enableKeyboard) {
+      let scrollTween;
+      
+      document.addEventListener("keydown", (e) => {
+        const scrollTrigger = tl.scrollTrigger;
+        if (!scrollTrigger) return;
+        
+        const progress = scrollTrigger.progress;
+        const slideProgress = 1 / (numSlides - 1); // Progress per slide
+        
+        let newProgress;
+        
+        if (e.code === "ArrowUp" || e.code === "ArrowLeft") {
+          e.preventDefault();
+          newProgress = Math.max(0, progress - slideProgress);
+        } else if (e.code === "ArrowDown" || e.code === "ArrowRight" || e.code === "Space" || e.code === "Enter") {
+          e.preventDefault();
+          newProgress = Math.min(1, progress + slideProgress);
+        } else {
+          return;
+        }
+        
+        // Kill any existing scroll tween
+        if (scrollTween) scrollTween.kill();
+        
+        // Smoothly scroll to new position
+        scrollTween = gsap.to(window, {
+          scrollTo: {
+            y: scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * newProgress,
+            autoKill: false
+          },
+          duration: 1,
+          ease: "power2.inOut"
+        });
+      });
+    }
+  }
+</script>
+
+{%  schema %} 
+{
+  "name": "Animated Slideshow",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_height",
+      "label": "Section Height",
+      "default": "100vh",
+      "info": "Height of the slideshow section (e.g., 100vh, 80vh, 600px)"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#4361ee"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_keyboard_navigation",
+      "label": "Enable Keyboard Navigation",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "SLIDE"
+        },
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "Slide Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "overlay_image",
+          "label": "Overlay Image"
+        },
+        {
+          "type": "color",
+          "id": "slide_background",
+          "label": "Slide Background Color",
+          "default": "#6d597a"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Animated Slideshow",
+      "category": "Layout",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "SCROLL",
+            "slide_background": "#6d597a"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "SWIPE",
+            "slide_background": "#355070"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "EXPLORE",
+            "slide_background": "#b56576"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "DISCOVER",
+            "slide_background": "#9a8c98"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

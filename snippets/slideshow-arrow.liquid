@@ -5,6 +5,8 @@
   @param {string} [icon_style] - { 'arrow' | 'chevron' } The style of the icon, defaults to 'arrow'.
   @param {string} [icon_shape] - { 'none' | 'circle' | 'square' } The shape of the icon background, defaults to 'none'.
   @param {string} [icon_size] - { 'small' | 'medium' | 'large' } The size of the icon, defaults to 'medium'.
+  @param {image} [custom_icon] - The custom icon image
+  @param {number} [custom_icon_width] - The width of the custom icon
 
   @example
   {%- render 'slideshow-arrow', action: 'previous' -%}
@@ -42,8 +44,22 @@
   <span class="svg-wrapper icon-{{ icon_name }}">
     {%- if icon_name == 'caret' -%}
       {{- 'icon-caret.svg' | inline_asset_content -}}
+    {%- elsif icon_style == 'custom' and custom_icon != blank -%}
+      {{
+        custom_icon
+        | image_url: width: custom_icon_width
+        | image_tag: loading: 'lazy', alt: 'Slideshow arrow', style: 'width: 100%; height: auto;'
+      }}
     {%- else -%}
       {{- 'icon-arrow.svg' | inline_asset_content -}}
     {%- endif -%}
   </span>
+  {%- if custom_icon != blank and icon_style == 'custom' -%}
+    <style>
+      .slideshow-control--style-custom .icon-arrow {
+        width: {{ custom_icon_width }}px;
+        height: auto;
+      }
+    </style>
+  {%- endif -%}
 </button>

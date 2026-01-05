@@ -352,20 +352,37 @@ export class Slideshow extends Component {
     return this.getAttribute('infinite') != null;
   }
 
+  get slidesToScroll() {
+    const mobileValues = this.getAttribute('mobile-slides-to-scroll');
+    const desktopValues = this.getAttribute('slides-to-scroll');
+
+    if (!mediaQueryLarge.matches && mobileValues) {
+      return parseInt(mobileValues, 10);
+    }
+
+    if (desktopValues) {
+      return parseInt(desktopValues, 10);
+    }
+    
+    return 0; // Default behavior
+  }
+
   get visibleSlides() {
     return getVisibleElements(this.refs.scroller, this.slides, SLIDE_VISIBLITY_THRESHOLD, 'x');
   }
 
   get previousIndex() {
     const { current, visibleSlides } = this;
-    const modifier = visibleSlides.length > 1 ? visibleSlides.length : 1;
+    const slidesToScroll = this.slidesToScroll;
+    const modifier = slidesToScroll > 0 ? slidesToScroll : (visibleSlides.length > 1 ? visibleSlides.length : 1);
 
     return current - modifier;
   }
 
   get nextIndex() {
     const { current, visibleSlides } = this;
-    const modifier = visibleSlides.length > 1 ? visibleSlides.length : 1;
+    const slidesToScroll = this.slidesToScroll;
+    const modifier = slidesToScroll > 0 ? slidesToScroll : (visibleSlides.length > 1 ? visibleSlides.length : 1);
 
     return current + modifier;
   }

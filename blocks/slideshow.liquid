@@ -1,25 +1,22 @@
 
-
-{% if section.blocks.size > 1 %}
-  {% capture controls %}
-    {%- render 'slideshow-controls',
-      style: section.settings.slideshow_controls_style,
-      autoplay: section.settings.autoplay,
-      item_count: section.blocks.size,
-      show_arrows: false,
-      arrows_on_media: true,
-      controls_on_media: true,
-      pagination_position: 'center',
-      icon_style: section.settings.icons_style,
-      custom_icon: section.settings.custom_icon,
-      custom_icon_width: section.settings.custom_icon_width,
-      show_arrows_desktop: section.settings.show_arrows_desktop,
-      show_arrows_mobile: section.settings.show_arrows_mobile,
-      arrows_position: section.settings.arrows_position,
-      mobile_arrows_position: section.settings.mobile_arrows_position
-    -%}
-  {% endcapture %}
-{% endif %}
+{% capture controls %}
+  {%- render 'slideshow-controls',
+    style: block.settings.slideshow_controls_style,
+    autoplay: block.settings.autoplay,
+    item_count: block.blocks.size,
+    show_arrows: false,
+    arrows_on_media: true,
+    controls_on_media: true,
+    pagination_position: 'center',
+    icon_style: block.settings.icons_style,
+    custom_icon: block.settings.custom_icon,
+    custom_icon_width: block.settings.custom_icon_width,
+    show_arrows_desktop: block.settings.show_arrows_desktop,
+    show_arrows_mobile: block.settings.show_arrows_mobile,
+    arrows_position: block.settings.arrows_position,
+    mobile_arrows_position: block.settings.mobile_arrows_position
+  -%}
+{% endcapture %}
 
 {% capture slides %}
   {% content_for 'blocks' %}
@@ -27,52 +24,49 @@
 
 {% liquid
   assign slideshow_class = 'slideshow--single-media'
-  if section.blocks.size > 1
+  if block.blocks.size > 1
     assign slideshow_class = ''
   endif
 
   assign show_arrows = true
-  if section.settings.icons_style == 'none' or section.blocks.size <= 1
+  if block.settings.icons_style == 'none' or block.blocks.size <= 1
     assign show_arrows = false
   endif
 %}
 
-<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="color-{{ block.settings.color_scheme }}"></div>
 <div
-  class="spacing-style section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} disable-section-top-offset"
-  style="{% render 'spacing-padding', settings: section.settings %}"
+  class="spacing-style section section--{{ block.settings.section_width }} color-{{ block.settings.color_scheme }} disable-section-top-offset"
+  style="{% render 'spacing-padding', settings: block.settings %}"
 >
   {% render 'slideshow',
     class: slideshow_class,
     controls: controls,
     show_arrows: show_arrows,
-    icon_style: section.settings.icons_style,
-    autoplay: section.settings.autoplay,
-    autoplay_speed: section.settings.autoplay_speed,
+    icon_style: block.settings.icons_style,
+    autoplay: block.settings.autoplay,
+    autoplay_speed: block.settings.autoplay_speed,
     slides: slides,
-    slide_count: section.blocks.size,
-    slide_size: section.settings.slide_height,
-    custom_icon: section.settings.custom_icon,
-    custom_icon_width: section.settings.custom_icon_width,
-    slides_to_show: section.settings.slides_to_show,
-    mobile_slides_to_show: section.settings.mobile_slides_to_show,
-    slides_to_scroll: section.settings.slides_to_scroll,
-    mobile_slides_to_scroll: section.settings.mobile_slides_to_scroll
+    slide_count: block.blocks.size,
+    slide_size: block.settings.slide_height,
+    custom_icon: block.settings.custom_icon,
+    custom_icon_width: block.settings.custom_icon_width,
+    slides_to_show: block.settings.slides_to_show,
+    mobile_slides_to_show: block.settings.mobile_slides_to_show,
+    slides_to_scroll: block.settings.slides_to_scroll,
+    mobile_slides_to_scroll: block.settings.mobile_slides_to_scroll
   %}
 </div>
 
 {% schema %}
 {
   "name": "t:names.slideshow",
-  "class": "container-background-image",
+  "tag": null,
   "blocks": [
     {
       "type": "_slide"
     }
   ],
-  "disabled_on": {
-    "groups": ["header", "footer"]
-  },
   "settings": [
     {
       "type": "select",
@@ -110,7 +104,7 @@
       "type": "image_picker",
       "id": "custom_icon",
       "label": "Custom arrow",
-      "visible_if": "{{ section.settings.icons_style == 'custom' }}"
+      "visible_if": "{{ block.settings.icons_style == 'custom' }}"
     },
     {
       "type": "range",
@@ -121,7 +115,7 @@
       "step": 1,
       "unit": "px",
       "default": 30,
-      "visible_if": "{{ section.settings.icons_style == 'custom' }}"
+      "visible_if": "{{ block.settings.icons_style == 'custom' }}"
     },
     {
       "type": "header",
@@ -264,7 +258,7 @@
       "step": 1,
       "unit": "s",
       "default": 4,
-      "visible_if": "{{ section.settings.autoplay }}"
+      "visible_if": "{{ block.settings.autoplay }}"
     },
     {
       "type": "header",

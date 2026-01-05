@@ -745,6 +745,63 @@ slideshow-component [data-placeholder='true'] * {
   cursor: grab;
 }
 
+/* Slideshow - Slides Per View */
+slideshow-component {
+  --slides-per-view: var(--slides-per-view-mobile, 1);
+}
+
+@media screen and (min-width: 750px) {
+  slideshow-component {
+    --slides-per-view: var(--slides-per-view-desktop, 1);
+  }
+}
+
+slideshow-slide {
+  width: calc(100% / var(--slides-per-view, 1));
+  flex: 0 0 calc(100% / var(--slides-per-view, 1));
+}
+
+/* Slideshow - Arrow Positioning & Visibility */
+.slideshow-controls__arrows--hidden-desktop {
+  display: none !important;
+}
+
+@media screen and (max-width: 749px) {
+  .slideshow-controls__arrows--hidden-mobile {
+    display: none !important;
+  }
+}
+
+.slideshow-controls__arrows--top {
+  align-items: flex-start;
+  padding-top: var(--gap-md);
+}
+
+.slideshow-controls__arrows--bottom {
+  align-items: flex-end;
+  padding-bottom: var(--gap-md);
+}
+
+.slideshow-controls__arrows--center {
+  align-items: center;
+}
+
+@media screen and (max-width: 749px) {
+  .slideshow-controls__arrows--mobile-top {
+    align-items: flex-start;
+    padding-top: var(--gap-md);
+  }
+
+  .slideshow-controls__arrows--mobile-bottom {
+    align-items: flex-end;
+    padding-bottom: var(--gap-md);
+  }
+
+  .slideshow-controls__arrows--mobile-center {
+    align-items: center;
+  }
+}
+
 /* Base text and heading styles */
 body,
 .paragraph:not(.button),
@@ -3379,301 +3436,6 @@ slideshow-slide.product-media-container--tallest {
     content-visibility: visible;
   }
 }
-
-/* Simple slider - used in product media, testimonials, logos, etc.  */
-.gallery-block-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-simple-slider {
-  display: block;
-  width: 100%;
-  overflow: visible; /* Allows slides to be seen outside this container */
-  cursor: grab;
-  touch-action: pan-y; /* Allows vertical page scroll on touch devices */
-  overflow-x: clip;
-}
-
-simple-slider.slider-disabled {
-  cursor: default;
-  touch-action: none;
-}
-
-/* Hide slides outside viewport */
-simple-slider .slider-track > *:not(.active) {
-  opacity: 0;
-}
-
-simple-slider .slider-track > *.active {
-  opacity: 1;
-}
-
-/* Fade animation - disable cursor for dragging */
-simple-slider.animation-fade {
-  cursor: default;
-}
-
-/* Slide animation styles (default) */
-.slider-track {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: var(--gap, 0);
-  will-change: transform; /* Performance hint for animations */
-}
-
-.slider-track > * {
-  flex-shrink: 0; /* Prevents slides from shrinking */
-  width: 100%;
-  transition: opacity 0.1s;
-  /* padding-inline: 0.9375rem; */
-}
-
-[data-slides-to-show='2'] .slider-track > * {
-  width: calc((100% - var(--gap)) / 2);
-}
-[data-slides-to-show='3'] .slider-track > * {
-  width: calc((100% - (var(--gap) * 2)) / 3);
-}
-[data-slides-to-show='4'] .slider-track > * {
-  width: calc((100% - (var(--gap) * 3)) / 4);
-}
-[data-slides-to-show='5'] .slider-track > * {
-  width: calc((100% - (var(--gap) * 4)) / 5);
-}
-[data-slides-to-show='6'] .slider-track > * {
-  width: calc((100% - (var(--gap) * 5)) / 6);
-}
-
-@media only screen and (max-width: 749px) {
-  [data-mobile-slides-to-show='1'] .slider-track > * {
-    width: 100%;
-  }
-  [data-mobile-slides-to-show='2'] .slider-track > * {
-    width: calc((100% - var(--gap)) / 2);
-  }
-  [data-mobile-slides-to-show='3'] .slider-track > * {
-    width: calc((100% - (var(--gap) * 2)) / 3);
-  }
-  [data-mobile-slides-to-show='4'] .slider-track > * {
-    width: calc((100% - (var(--gap) * 3)) / 4);
-  }
-  [data-mobile-slides-to-show='5'] .slider-track > * {
-    width: calc((100% - (var(--gap) * 4)) / 5);
-  }
-  [data-mobile-slides-to-show='6'] .slider-track > * {
-    width: calc((100% - (var(--gap) * 5)) / 6);
-  }
-}
-
-simple-slider.dragging {
-  cursor: grabbing;
-}
-
-simple-slider.dragging * {
-  user-select: none;
-  pointer-events: none; /* Prevents clicking on child elements during drag */
-}
-
-.full-unstyled-button {
-  all: unset;
-  cursor: pointer;
-  display: inline-block;
-  text-align: inherit;
-}
-
-/* Arrows */
-.simple-slider__arrow {
-  position: absolute;
-  top: 50%;
-  border: none;
-  padding: 0.5em;
-  cursor: pointer;
-  z-index: 10;
-  width: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.arrows-hover .simple-slider__arrow {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.arrows-hover:hover .simple-slider__arrow:not(.disabled) {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.arrows-hover:hover .simple-slider__arrow.disabled {
-  opacity: 0.3;
-}
-
-.arrows-always .simple-slider__arrow {
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-.arrows-always .simple-slider__arrow.disabled {
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.simple-slider__arrow--prev {
-  left: 0;
-  transform: rotateY(180deg) translate(100%, -50%);
-}
-
-.simple-slider__arrow--next {
-  right: 0;
-  transform: translate(100%, -50%);
-}
-
-.arrows--bottom {
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
-  .simple-slider__arrow {
-    bottom: 0;
-    top: unset;
-  }
-  .simple-slider__arrow--prev {
-    left: 50%;
-    transform: rotateY(180deg) translate(100%, 100%);
-  }
-
-  .simple-slider__arrow--next {
-    right: 50%;
-    transform: translate(100%, 100%);
-  }
-} 
-
-.arrows--top {
-  padding-top: 1rem;
-  margin-top: 2rem;
-  .simple-slider__arrow {
-    top: 0;
-    bottom: unset;
-  }
-  .simple-slider__arrow--prev {
-    left: 50%;
-    transform: rotateY(180deg) translate(100%, -100%);
-  }
-
-  .simple-slider__arrow--next {
-    right: 50%;
-    transform: translate(100%, -100%);
-  }
-} 
-
-@media only screen and (max-width: 749px) {
-  .arrows--center {
-    simple-slider:has(.hovering-box.hovering-box__content--above) {
-      margin-inline: 2rem;
-      width: calc(100% - 4rem);
-    }
-    .simple-slider__arrow--prev {
-      transform: rotateY(180deg) translate(20%, -50%);
-    }
-    .simple-slider__arrow--next {
-      right: 0;
-      transform: translate(20%, -50%);
-    }
-  }
-  .mobile-arrows--bottom {
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-    .simple-slider__arrow {
-      bottom: 0;
-      top: unset;
-    }
-    .simple-slider__arrow--prev {
-      left: 50%;
-      transform: rotateY(180deg) translate(100%, 100%);
-    }
-
-    .simple-slider__arrow--next {
-      right: 50%;
-      transform: translate(100%, 100%);
-    }
-  } 
-  .mobile-arrows--top {
-    padding-top: 1rem;
-    margin-top: 2rem;
-    .simple-slider__arrow {
-      top: 0;
-      bottom: unset;
-    }
-    .simple-slider__arrow--prev {
-      left: 50%;
-      transform: rotateY(180deg) translate(100%, -100%);
-    }
-
-    .simple-slider__arrow--next {
-      right: 50%;
-      transform: translate(100%, -100%);
-    }
-  } 
-}
-
-/* Dots */
-.simple-slider__dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.25rem;
-  padding-top: 1rem;
-}
-
-.slider-dot {
-  width: 0.8125rem;
-  height: 0.8125rem;
-  border-radius: 50%;
-  border: 1px solid #ccc;
-  transition: background-color 0.3s ease;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.slider-dot.active::before {
-  background-color: var(--color-primary);
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 0.4125rem;
-  height: 0.4125rem;
-  border-radius: 50%;
-}
-
-/* Line separator used on some sliders */
-.line-separator > *:not(:last-child)::after {
-  content: '';
-  display: block;
-  position: absolute;
-  width: 1px;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  right: calc(-1 * var(--gap) / 2);
-  background-color: rgb(var(--color-foreground-rgb) / var(--opacity-10));
-}
-
-/* Gallery floating heading system */
-.arrows--top:has(h2.multicolumn-heading.floating_button) {
-  .simple-slider__arrow--prev {
-    left: calc(50% - 6.5625rem - 3.9375rem);
-    transform: rotateY(180deg) translate(100%, -100%);
-  }
-
-  .simple-slider__arrow--next {
-    right: calc(50% - 6.5625rem - 3.9375rem);
-    transform: translate(100%, -100%);
-  }
-}
-
-/* End of simple slider */
 
 /* Hovering box */
 .hovering-box.hovering-box__content--above {

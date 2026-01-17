@@ -1,0 +1,534 @@
+{% comment %}
+  Scroll Image Sequence Section
+  - Uses GSAP ScrollTrigger to animate through a sequence of images on scroll.
+  - Fetches images directly from CDN based on handle-NNN pattern.
+{% endcomment %}
+
+<style>
+  .scroll-sequence-section {
+    position: relative;
+    width: 100%;
+    /* Height is now controlled by the content/canvas aspect ratio in standard flow, 
+       but ScrollTrigger will add the necessary padding/spacing via pinning. 
+       We set the trigger height to 100vh for the visual area. */
+    height: 100vh;
+    background-color: {{ section.settings.background_color }};
+    overflow: hidden;
+  }
+
+  .scroll-sequence__wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .scroll-sequence__canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;  /* Ensures it tries to fill width */
+    height: 100%; /* Ensures it tries to fill height */
+    object-fit: contain; /* Keeps aspect ratio */
+    opacity: 0; 
+    transition: opacity 0.5s ease;
+  }
+
+  .scroll-sequence__canvas.is-loaded {
+    opacity: 1;
+  }
+
+  /* Warning Message Styles */
+  .scroll-sequence__warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid red;
+    color: red;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    z-index: 10;
+    display: none; 
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  .scroll-sequence__content-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through to canvas if needed */
+    z-index: 2;
+  }
+
+  .scroll-sequence__block {
+    position: absolute;
+    opacity: 0; /* JS will handle visibility */
+    padding: 1rem;
+    max-width: 90%;
+    width: max-content;
+  }
+  
+  /* Desktop Positioning Classes */
+  .pos-d-top-left { top: 10%; left: 10%; transform: translate(0, 0); }
+  .pos-d-top-center { top: 10%; left: 50%; transform: translate(-50%, 0); text-align: center; }
+  .pos-d-top-right { top: 10%; right: 10%; transform: translate(0, 0); text-align: right; }
+  .pos-d-middle-left { top: 50%; left: 10%; transform: translate(0, -50%); }
+  .pos-d-middle-center { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .pos-d-middle-right { top: 50%; right: 10%; transform: translate(0, -50%); text-align: right; }
+  .pos-d-bottom-left { bottom: 10%; left: 10%; transform: translate(0, 0); }
+  .pos-d-bottom-center { bottom: 10%; left: 50%; transform: translate(-50%, 0); text-align: center; }
+  .pos-d-bottom-right { bottom: 10%; right: 10%; transform: translate(0, 0); text-align: right; }
+
+  /* Mobile Positioning Overrides (Media Query) */
+  @media screen and (max-width: 768px) {
+    .pos-m-top-left { top: 10% !important; bottom: auto !important; left: 5% !important; right: auto !important; transform: translate(0, 0) !important; text-align: left !important; }
+    .pos-m-top-center { top: 10% !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translate(-50%, 0) !important; text-align: center !important; }
+    .pos-m-top-right { top: 10% !important; bottom: auto !important; right: 5% !important; left: auto !important; transform: translate(0, 0) !important; text-align: right !important; }
+    .pos-m-middle-left { top: 50% !important; bottom: auto !important; left: 5% !important; right: auto !important; transform: translate(0, -50%) !important; text-align: left !important; }
+    .pos-m-middle-center { top: 50% !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translate(-50%, -50%) !important; text-align: center !important; }
+    .pos-m-middle-right { top: 50% !important; bottom: auto !important; right: 5% !important; left: auto !important; transform: translate(0, -50%) !important; text-align: right !important; }
+    .pos-m-bottom-left { bottom: 10% !important; top: auto !important; left: 5% !important; right: auto !important; transform: translate(0, 0) !important; text-align: left !important; }
+    .pos-m-bottom-center { bottom: 10% !important; top: auto !important; left: 50% !important; right: auto !important; transform: translate(-50%, 0) !important; text-align: center !important; }
+    .pos-m-bottom-right { bottom: 10% !important; top: auto !important; right: 5% !important; left: auto !important; transform: translate(0, 0) !important; text-align: right !important; }
+  }
+
+  .scroll-sequence__block h2 { margin: 0; color: inherit; font-size: 3rem; line-height: 1.1; }
+  .scroll-sequence__block p { margin: 0; color: inherit; font-size: 1.25rem; }
+  
+  @media screen and (max-width: 768px) {
+    .scroll-sequence__block h2 { font-size: 2rem; }
+    .scroll-sequence__block p { font-size: 1rem; }
+  }
+</style>
+
+<div class="scroll-sequence-section" data-section-id="{{ section.id }}">
+  <div class="scroll-sequence__wrapper">
+    <canvas class="scroll-sequence__canvas" id="canvas-{{ section.id }}"></canvas>
+    
+    <!-- Content Blocks Overlay -->
+    <div class="scroll-sequence__content-overlay">
+      {% for block in section.blocks %}
+        {%- case block.type -%}
+          {%- when 'heading' -%}
+            <div class="scroll-sequence__block pos-d-{{ block.settings.position_desktop }} pos-m-{{ block.settings.position_mobile }}"
+                 style="color: {{ block.settings.color }}"
+                 data-block-type="heading"
+                 data-start="{{ block.settings.start_frame }}"
+                 data-end="{{ block.settings.end_frame }}"
+                 data-anim="{{ block.settings.animation_type }}"
+                 {{ block.shopify_attributes }}>
+              <h2>{{ block.settings.heading | escape }}</h2>
+            </div>
+          {%- when 'text' -%}
+            <div class="scroll-sequence__block pos-d-{{ block.settings.position_desktop }} pos-m-{{ block.settings.position_mobile }}"
+                 style="color: {{ block.settings.color }}"
+                 data-block-type="text"
+                 data-start="{{ block.settings.start_frame }}"
+                 data-end="{{ block.settings.end_frame }}"
+                 data-anim="{{ block.settings.animation_type }}"
+                 {{ block.shopify_attributes }}>
+              <p>{{ block.settings.text }}</p>
+            </div>
+        {%- endcase -%}
+      {% endfor %}
+    </div>
+
+    <div class="scroll-sequence__loading">Loading sequence...</div>
+
+    <div class="scroll-sequence__warning">
+      <h3>Image Sequence Not Found</h3>
+      <p>We couldn't find any images with the current handle <strong>"<span class="missing-handle-name"></span>"</strong>.</p>
+      <p>Please verify that the images start with the handle followed by the number of the image (e.g., <code><span class="missing-handle-example"></span>-001.{{ section.settings.image_extension }}</code>).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // --- Configuration ---
+    const sectionId = "{{ section.id }}";
+    const handle = "{{ section.settings.image_handle | escape }}";
+    const extension = "{{ section.settings.image_extension }}";
+    const frameCount = {{ section.settings.sequence_count }};
+    const scrollHeightMultiplier = 4; 
+    
+    const canvas = document.getElementById(`canvas-${sectionId}`);
+    const context = canvas.getContext("2d");
+    const container = canvas.closest('.scroll-sequence-section');
+    const warningEl = container.querySelector('.scroll-sequence__warning');
+    const loadingEl = container.querySelector('.scroll-sequence__loading');
+    const blocks = container.querySelectorAll('.scroll-sequence__block');
+    
+    // --- Dependency Check ---
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+      console.warn('GSAP or ScrollTrigger not loaded.');
+      loadingEl.textContent = 'GSAP Library Missing';
+      return;
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // --- Helper: Get CDN Base URL ---
+    const dummyUrl = "{{ 'dummy.png' | file_url }}"; 
+    const baseUrl = dummyUrl.substring(0, dummyUrl.lastIndexOf('/') + 1);
+
+    // --- State ---
+    const images = [];
+    const sequence = { frame: 0 };
+    let mainTimeline;
+    
+    // --- Functions ---
+    const getImageUrl = (index) => {
+      const paddedIndex = (index + 1).toString().padStart(3, '0');
+      return `${baseUrl}${handle}-${paddedIndex}.${extension}`;
+    };
+
+    const render = () => {
+      const frameIndex = Math.round(sequence.frame);
+      const img = images[frameIndex];
+      
+      if (img && img.complete) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const hRatio = canvas.width / img.width;
+        const vRatio = canvas.height / img.height;
+        const ratio = Math.max(hRatio, vRatio);
+        
+        const centerShift_x = (canvas.width - img.width * ratio) / 2;
+        const centerShift_y = (canvas.height - img.height * ratio) / 2;
+        
+        context.drawImage(
+          img, 
+          0, 0, img.width, img.height,
+          centerShift_x, centerShift_y, img.width * ratio, img.height * ratio
+        );
+      }
+    };
+
+    const initCanvasSize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      render();
+    };
+
+    const checkAndLoad = async () => {
+        if (!handle) {
+             loadingEl.style.display = 'none';
+             return;
+        }
+
+        const firstImageUrl = getImageUrl(0);
+        const testImage = new Image();
+        testImage.onload = () => {
+             startSequence();
+        };
+        testImage.onerror = () => {
+            loadingEl.style.display = 'none';
+            warningEl.style.display = 'block';
+            warningEl.querySelector('.missing-handle-name').textContent = handle;
+            warningEl.querySelector('.missing-handle-example').textContent = handle;
+        };
+        testImage.src = firstImageUrl;
+    };
+
+    const startSequence = () => {
+        loadingEl.style.display = 'none';
+        canvas.classList.add('is-loaded');
+        
+        // 1. Preload
+        for (let i = 0; i < frameCount; i++) {
+            const img = new Image();
+            img.src = getImageUrl(i);
+            images.push(img);
+        }
+
+        // 2. Setup Canvas
+        window.addEventListener('resize', initCanvasSize);
+        initCanvasSize();
+        
+        if (images[0].complete) {
+            render();
+        } else {
+            images[0].onload = render;
+        }
+
+        // 3. Setup GSAP ScrollTrigger & Timeline
+        // We create a master timeline that is scrubbed by ScrollTrigger
+        mainTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: container,
+                start: "top top",
+                end: () => "+=" + (window.innerHeight * scrollHeightMultiplier),
+                scrub: 0.5,
+                pin: true,
+                anticipatePin: 1 
+            }
+        });
+
+        // Add the image sequence animation to the timeline
+        // Duration = frameCount to easily map 1 frame = 1 second (or 1 unit) of timeline
+        // This makes mapping block start/end frames very intuitive
+        mainTimeline.to(sequence, {
+            frame: frameCount - 1,
+            snap: "frame",
+            ease: "none",
+            duration: frameCount, 
+            onUpdate: render
+        }, 0); // Start at 0
+
+        // 4. Setup Content Blocks
+        blocks.forEach(block => {
+            const startFrame = parseInt(block.dataset.start) || 0;
+            const endFrame = parseInt(block.dataset.end) || frameCount;
+            const animType = block.dataset.anim || 'fade';
+            
+            // Calculate duration in frames
+            const duration = Math.max(1, endFrame - startFrame);
+            
+            // Initial State for block
+            // Depending on animation type, we might want different 'from' states
+            let fromVars = { autoAlpha: 0 };
+            let toVars = { autoAlpha: 1, duration: Math.min(10, duration * 0.2) }; // Fade in over max 10 frames or 20% of duration
+            
+            if (animType === 'slide_up') {
+                fromVars.y = 50;
+                toVars.y = 0;
+            } else if (animType === 'scale') {
+                fromVars.scale = 0.8;
+                toVars.scale = 1;
+            }
+
+            // Animate In
+            mainTimeline.fromTo(block, fromVars, toVars, startFrame);
+
+            // Animate Out (fade out) just before endFrame
+            // We'll quick fade out at the end
+            mainTimeline.to(block, { 
+                autoAlpha: 0, 
+                duration: 5 
+            }, endFrame - 5); 
+        });
+    };
+
+    checkAndLoad();
+
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Scroll Image Sequence",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image Configuration"
+    },
+    {
+      "type": "paragraph",
+      "content": "Upload sequence: [handle]-001.ext, [handle]-002.ext ..."
+    },
+    {
+      "type": "text",
+      "id": "image_handle",
+      "label": "Image Filename Handle",
+      "placeholder": "baseball-bat"
+    },
+    {
+      "type": "select",
+      "id": "image_extension",
+      "label": "File Extension",
+      "options": [
+        { "value": "jpg", "label": "JPG" },
+        { "value": "png", "label": "PNG" },
+        { "value": "webp", "label": "WebP" }
+      ],
+      "default": "jpg"
+    },
+    {
+      "type": "number",
+      "id": "sequence_count",
+      "label": "Number of Images",
+      "default": 144
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#000000"
+    },
+     {
+      "type": "color",
+      "id": "text_color",
+      "label": "Loading Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading Text",
+          "default": "Feature Heading"
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "header",
+          "content": "Timing (Frames)"
+        },
+        {
+          "type": "number",
+          "id": "start_frame",
+          "label": "Start Frame",
+          "default": 10
+        },
+        {
+          "type": "number",
+          "id": "end_frame",
+          "label": "End Frame",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Positioning"
+        },
+        {
+            "type": "select",
+            "id": "position_desktop",
+            "label": "Position (Desktop)",
+            "options": [
+                { "value": "top-left", "label": "Top Left" }, { "value": "top-center", "label": "Top Center" }, { "value": "top-right", "label": "Top Right" },
+                { "value": "middle-left", "label": "Middle Left" }, { "value": "middle-center", "label": "Middle Center" }, { "value": "middle-right", "label": "Middle Right" },
+                { "value": "bottom-left", "label": "Bottom Left" }, { "value": "bottom-center", "label": "Bottom Center" }, { "value": "bottom-right", "label": "Bottom Right" }
+            ],
+            "default": "middle-center"
+        },
+        {
+            "type": "select",
+            "id": "position_mobile",
+            "label": "Position (Mobile)",
+            "options": [
+                { "value": "top-left", "label": "Top Left" }, { "value": "top-center", "label": "Top Center" }, { "value": "top-right", "label": "Top Right" },
+                { "value": "middle-left", "label": "Middle Left" }, { "value": "middle-center", "label": "Middle Center" }, { "value": "middle-right", "label": "Middle Right" },
+                { "value": "bottom-left", "label": "Bottom Left" }, { "value": "bottom-center", "label": "Bottom Center" }, { "value": "bottom-right", "label": "Bottom Right" }
+            ],
+            "default": "middle-center"
+        },
+        {
+            "type": "select",
+            "id": "animation_type",
+            "label": "Animation",
+            "options": [
+                { "value": "fade", "label": "Fade In" },
+                { "value": "slide_up", "label": "Slide Up" },
+                { "value": "scale", "label": "Scale In" }
+            ],
+            "default": "fade"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text Content",
+          "default": "Description text goes here."
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "default": "#ffffff"
+        },
+         {
+          "type": "header",
+          "content": "Timing (Frames)"
+        },
+        {
+          "type": "number",
+          "id": "start_frame",
+          "label": "Start Frame",
+          "default": 10
+        },
+        {
+          "type": "number",
+          "id": "end_frame",
+          "label": "End Frame",
+          "default": 50
+        },
+        {
+          "type": "header",
+          "content": "Positioning"
+        },
+        {
+            "type": "select",
+            "id": "position_desktop",
+            "label": "Position (Desktop)",
+            "options": [
+                { "value": "top-left", "label": "Top Left" }, { "value": "top-center", "label": "Top Center" }, { "value": "top-right", "label": "Top Right" },
+                { "value": "middle-left", "label": "Middle Left" }, { "value": "middle-center", "label": "Middle Center" }, { "value": "middle-right", "label": "Middle Right" },
+                { "value": "bottom-left", "label": "Bottom Left" }, { "value": "bottom-center", "label": "Bottom Center" }, { "value": "bottom-right", "label": "Bottom Right" }
+            ],
+            "default": "middle-center"
+        },
+        {
+            "type": "select",
+            "id": "position_mobile",
+            "label": "Position (Mobile)",
+            "options": [
+                { "value": "top-left", "label": "Top Left" }, { "value": "top-center", "label": "Top Center" }, { "value": "top-right", "label": "Top Right" },
+                { "value": "middle-left", "label": "Middle Left" }, { "value": "middle-center", "label": "Middle Center" }, { "value": "middle-right", "label": "Middle Right" },
+                { "value": "bottom-left", "label": "Bottom Left" }, { "value": "bottom-center", "label": "Bottom Center" }, { "value": "bottom-right", "label": "Bottom Right" }
+            ],
+            "default": "middle-center"
+        },
+        {
+            "type": "select",
+            "id": "animation_type",
+            "label": "Animation",
+            "options": [
+                { "value": "fade", "label": "Fade In" },
+                { "value": "slide_up", "label": "Slide Up" },
+                { "value": "scale", "label": "Scale In" }
+            ],
+            "default": "fade"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scroll Image Sequence",
+      "blocks": [
+        { "type": "heading", "settings": { "heading": "Start Scrolling", "start_frame": 0, "end_frame": 30 } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -923,11 +923,40 @@
         "padding-block-start-mobile": 0,
         "padding-block-end-mobile": 0
       }
+    },
+    "scroll_image_sequence_P6wVea": {
+      "type": "scroll-image-sequence",
+      "blocks": {
+        "heading_kk6K9Q": {
+          "type": "heading",
+          "settings": {
+            "heading": "Start Scrolling",
+            "color": "#ffffff",
+            "start_frame": 0,
+            "end_frame": 30,
+            "position_desktop": "middle-center",
+            "position_mobile": "middle-center",
+            "animation_type": "fade"
+          }
+        }
+      },
+      "block_order": [
+        "heading_kk6K9Q"
+      ],
+      "name": "Scroll Image Sequence",
+      "settings": {
+        "image_handle": "",
+        "image_extension": "jpg",
+        "sequence_count": 144,
+        "background_color": "#000000",
+        "text_color": "#ffffff"
+      }
     }
   },
   "order": [
     "hero_jVaWmY",
     "product_list_fa6P9H",
-    "circular_arc_QDtifY"
+    "circular_arc_QDtifY",
+    "scroll_image_sequence_P6wVea"
   ]
 }

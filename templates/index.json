@@ -945,7 +945,7 @@
       ],
       "name": "Scroll Image Sequence",
       "settings": {
-        "image_handle": "",
+        "image_handle": "baseball-bat",
         "image_extension": "jpg",
         "sequence_count": 144,
         "background_color": "#000000",

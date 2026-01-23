@@ -938,10 +938,23 @@
             "position_mobile": "middle-center",
             "animation_type": "fade"
           }
+        },
+        "heading_wrBHXH": {
+          "type": "heading",
+          "settings": {
+            "heading": "Start Scrolling",
+            "color": "#ffffff",
+            "start_frame": 0,
+            "end_frame": 30,
+            "position_desktop": "middle-center",
+            "position_mobile": "middle-center",
+            "animation_type": "fade"
+          }
         }
       },
       "block_order": [
-        "heading_kk6K9Q"
+        "heading_kk6K9Q",
+        "heading_wrBHXH"
       ],
       "name": "Scroll Image Sequence",
       "settings": {

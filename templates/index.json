@@ -960,7 +960,7 @@
       "settings": {
         "image_handle": "baseball-bat",
         "image_extension": "png",
-        "sequence_count": 144,
+        "sequence_count": 40,
         "background_color": "#000000",
         "text_color": "#ffffff"
       }

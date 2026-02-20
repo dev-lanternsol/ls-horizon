@@ -99,7 +99,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p><em>We believe that surgery-free, painless Early Ear Correction should be available to all, and will one day <br/>make the teasing and bullying that accompanies ear prominence and deformity a thing of the past.</em></p><p><em>All children should grow up comfortable and confident with their ears.</em></p>",
+                "text": "<p><em>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</em></p><p><em>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</em></p>",
                 "width": "fit-content",
                 "max_width": "none",
                 "alignment": "left",
@@ -194,7 +194,7 @@
           "type": "text",
           "name": "t:names.text",
           "settings": {
-            "text": "<p>EarBuddies were invented in 1990 by Plastic Surgeon <a href=\"https://www.earbuddies.com/pages/David-Gault\" target=\"_blank\" title=\"David Gault FRCS\">David Gault FRCS</a>, one of the world’s leading experts on reconstructive surgery of the outer ear, to treat his newborn son (see below), who was born with a Stahl's Bar, a rare ear deformity difficult to treat surgically.</p><p>As a Consultant Plastic Surgeon with a special interest in ear reconstruction and deformity, he had seen and corrected countless cases of complications from failed ear surgery in centres all over the world, and witnessed the emotional impact of bullying and teasing.</p>",
+            "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vehicula, metus ac pretium lacinia, justo nisi fermentum nulla, at tincidunt eros urna vel dolor. Vivamus luctus, sapien nec ultricies tincidunt, velit velit bibendum dolor.</p><p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Nullam quis risus eget urna mollis ornare vel eu leo. Cras mattis consectetur purus sit amet fermentum.</p>",
             "width": "fit-content",
             "max_width": "none",
             "alignment": "left",
@@ -520,7 +520,7 @@
           "type": "text",
           "name": "t:names.text",
           "settings": {
-            "text": "<p>In December 2013, the<a href=\"https://cdn.shopify.com/s/files/1/0177/0828/files/Pinnaplasty_Commissioning_Guidelines.pdf?1463\" target=\"_blank\" title=\"https://cdn.shopify.com/s/files/1/0177/0828/files/Pinnaplasty_Commissioning_Guidelines.pdf?1463\">Royal College of Surgeons</a>recommended that<em>\"Information should be provided by those advising the parents of babies (GPs, Health Visitors etc) ... at the time of their first hearing test\"</em>, and splintage should soon become common practice as more health professionals become aware of how effectively EarBuddies can help.</p>",
+            "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.</p>",
             "width": "fit-content",
             "max_width": "none",
             "alignment": "left",
@@ -651,7 +651,7 @@
             "text_ypBHDX": {
               "type": "text",
               "settings": {
-                "text": "<p>Our founding principle was that Early Ear Correction should be available to all, as it has better results and fewer risks than the surgical alternative. All babies are beautiful as they are, but teasing is an unfortunate reality for many children. For most parents, the decision to fit EarBuddies is purely to ensure their child is comfortable with their appearance as they grow up, without the need for surgery and a general anaesthetic.</p>",
+                "text": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas faucibus mollis interdum. Cras justo odio, dapibus ut facilisis in, egestas eget quam. Nullam id dolor id nibh ultricies vehicula ut id elit. Aenean lacinia bibendum nulla sed consectetur.</p>",
                 "width": "fit-content",
                 "max_width": "none",
                 "alignment": "left",
@@ -812,7 +812,7 @@
               "type": "text",
               "name": "t:names.heading",
               "settings": {
-                "text": "<h5>About EarBuddies</h5>",
+                "text": "<h5>About Us</h5>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",
@@ -837,7 +837,7 @@
             "text_CayPBB": {
               "type": "text",
               "settings": {
-                "text": "<ul><li>We are based in the UK, just outside London.</li><li>The EarBuddies splints are still made in the UK, as they always have been.</li><li>EarBuddies can be fitted at home by parents, and we currently ship to nearly every country in the world.</li><li>EarBuddies are also fitted by EarBuddies Professionals in some of the most eminent children’s hospitals worldwide, including the NHS (UK), Mayo Clinic (USA), The Portland Hospital (London), and Boston Children’s Hospital (Harvard, USA).</li></ul>",
+                "text": "<ul><li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li><li>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.</li><li>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</li><li>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</li></ul>",
                 "width": "fit-content",
                 "max_width": "none",
                 "alignment": "left",
